@@ -7,7 +7,6 @@
 #include "fifo.h"
 #include "motor.h"
 #include "music.h"
-#include "music_motor_offline.h"
 #include "music_rc_offline.h"
 #include "music_start.h"
 #include "music_typedef.h"
@@ -154,7 +153,7 @@ static void MusicInit(void)
 
     // clang-format off
     MUSICS[start]             = MusicStartInit();
-    MUSICS[motor_offline]     = MusicMotorOfflineInit();
+    // MUSICS[motor_offline]     = MusicMotorOfflineInit();
     MUSICS[rc_offline]        = MusicRcOfflineInit();
     // MUSICS[you]               = MusicYouInit();
     // MUSICS[unity]             = MusicUnityInit();

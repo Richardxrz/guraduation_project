@@ -3,29 +3,6 @@
   * @file       mechanical_arm_engineer.c/h
   * @brief      机械臂功能。
   * @note
-  * @history
-  *  Version    Date            Author          Modification
-  *  V1.0.0     Aug-20-2024     Penguin         1. done
-  *  V1.0.1     Jan-14-2025     Penguin         1. 实现机械臂的基本控制
-  *
-  @verbatim
-  ==============================================================================
-机械臂相关的一些方向定义
-    - 机械臂水平向前时设置J0关节为0位置
-    - 机械臂竖直向上时设置J1 J2 J3关节为0位置
-
-    - 定义机械臂水平向前时的J0关节位置为0，从上往下看，逆时针为正方向
-    - 定义机械臂竖直向上时的J1 J2关节位置为0，从机械臂右侧看，逆时针为正方向（注：J1 J2关节的合位置为联动位置）
-    - 定义机械臂J3水平(同步带位于两侧)时的J3关节位置为0，从吸盘方向看，逆时针为正方向
-    - 定义J4为末端机构右侧（上视，J3向前）电机，J5为末端机构左侧电机
-
-    - 定义虚拟J4关节用来衡量末端机构的pitch, 虚拟J5关节用来衡量末端机构的roll
-    - 定义J4正方向为：当J3归中时，从机械臂右侧看，逆时针为正方向
-    - 定义J5正方向为：当J3归中时，从机械臂前方看，逆时针为正方向
-    - vj4和j4 j5的关系：vj4 = (j4 - j5)/2
-
-  ==============================================================================
-  @endverbatim
   ****************************(C) COPYRIGHT 2024 Polarbear****************************
   */
 
@@ -51,7 +28,6 @@
 #define JOINT_TORQUE_MORE_OFFSET              ((uint8_t)1 << 0)  // 关节电机输出力矩过大偏移量
 #define CUSTOM_CONTROLLER_DATA_ERROR_OFFSET   ((uint8_t)1 << 1)  // 自定义控制器数据异常偏移量
 #define DBUS_ERROR_OFFSET    ((uint8_t)1 << 2)  // dbus错误偏移量
-#define IMU_ERROR_OFFSET     ((uint8_t)1 << 3)  // imu错误偏移量
 #define FLOATING_OFFSET      ((uint8_t)1 << 4)  // 悬空状态偏移量
 // clang-format on
 
