@@ -5,11 +5,18 @@
         }
     ],
     "settings": {
+        "terminal.integrated.shellIntegration.enabled": false,
+        "clangd.arguments": [
+            "--header-insertion=never"
+        ],
+        "files.autoGuessEncoding": true,
+        "C_Cpp.default.configurationProvider": "cl.eide",
+        "C_Cpp.errorSquiggles": "disabled",
         "files.associations": {
-            "*.h": "c",
-            "*.c": "c",
             ".eideignore": "ignore",
             "*.a51": "a51",
+            "*.h": "c",
+            "*.c": "c",
             "*.hxx": "cpp",
             "*.hpp": "cpp",
             "*.c++": "cpp",
@@ -17,21 +24,11 @@
             "*.cxx": "cpp",
             "*.cc": "cpp"
         },
-        "C_Cpp.default.configurationProvider": "cl.eide",
-        "C_Cpp.errorSquiggles": "enabled",
-        "editor.formatOnSave": false,
-        "files.autoGuessEncoding": false,
-        "files.encoding": "utf8",
-        "terminal.integrated.shellIntegration.enabled": false,
-        "clangd.arguments": [
-            "--header-insertion=never"
-        ],
         "[yaml]": {
             "editor.insertSpaces": true,
             "editor.tabSize": 4,
             "editor.autoIndent": "advanced"
-        },
-        "cortex-debug.variableUseNaturalFormat": true
+        }
     },
     "extensions": {
         "recommendations": [
@@ -45,12 +42,7 @@
             "cschlosser.doxdocgen",
             "ms-vscode.vscode-serial-monitor",
             "dan-c-underwood.arm",
-            "marus25.cortex-debug",
-            "ms-vscode.cpptools"
+            "marus25.cortex-debug"
         ]
-    },
-    "launch": {
-        "version": "0.2.0",
-        "configurations": []
     }
 }
