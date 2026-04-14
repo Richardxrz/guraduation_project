@@ -64,7 +64,7 @@ typedef struct
  */
 typedef struct
 {
-    const RC_ctrl_t * rc;  // 底盘使用的遥控器指针
+    const RC_ctrl_t * lookline;  // 底盘使用的遥控器指针
     ChassisMode_e mode;    // 底盘模式
 
     /*-------------------- Motors --------------------*/

@@ -41,7 +41,7 @@ PID_t chassis_pid;
 void ChassisInit(void)
 {
     //step1 获取所有所需变量指针
-    chassis.rc = get_remote_control_point();
+    chassis.lookline = get_remote_control_point();
 
     //step2 PID数据清零，设置PID参数
     const static fp32 wheel_vel[3]={KP_MECANNUM_VEL,KI_MECANNUM_VEL,KD_MECANNUM_VEL};
@@ -85,15 +85,15 @@ void ChassisSetMode(void)
     }
 #endif
 
-    if (switch_is_down(chassis.rc->rc.s[0]))
+    if (switch_is_down(chassis.lookline->lookline.s[0]))
     {
         chassis.mode = CHASSIS_LOCK;
     }
-    else if (switch_is_mid(chassis.rc->rc.s[0]))
+    else if (switch_is_mid(chassis.lookline->lookline.s[0]))
     {
         chassis.mode = CHASSIS_SINGLE;
     }
-    else if (switch_is_up(chassis.rc->rc.s[0]))
+    else if (switch_is_up(chassis.lookline->lookline.s[0]))
     {
         chassis.mode = CHASSIS_SINGLE;
     }
@@ -137,8 +137,8 @@ void ChassisReference(void)
     }
     else if (chassis.mode == CHASSIS_SINGLE)
     {
-        chassis.reference.vx=fp32_deadline(chassis.rc->rc.ch[2],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
-        chassis.reference.vy=fp32_deadline(-chassis.rc->rc.ch[3],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
+        chassis.reference.vx=fp32_deadline(chassis.lookline->lookline.ch[2],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
+        chassis.reference.vy=fp32_deadline(-chassis.lookline->lookline.ch[3],-CHASSIS_RC_DEADLINE,CHASSIS_RC_DEADLINE)/CHASSIS_RC_MAX_RANGE*CHASSIS_RC_MAX_SPEED;
         chassis.reference.wz=0;
     }
 }

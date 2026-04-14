@@ -153,40 +153,40 @@ const Sbus_t *get_sbus_point(void)
 uint8_t RC_data_is_error(void)
 {
     //使用了go to语句 方便出错统一处理遥控器变量数据归零
-    if (RC_abs(rc_ctrl.rc.ch[0]) > RC_CHANNAL_ERROR_VALUE)
+    if (RC_abs(rc_ctrl.lookline.ch[0]) > RC_CHANNAL_ERROR_VALUE)
     {
         goto error;
     }
-    if (RC_abs(rc_ctrl.rc.ch[1]) > RC_CHANNAL_ERROR_VALUE)
+    if (RC_abs(rc_ctrl.lookline.ch[1]) > RC_CHANNAL_ERROR_VALUE)
     {
         goto error;
     }
-    if (RC_abs(rc_ctrl.rc.ch[2]) > RC_CHANNAL_ERROR_VALUE)
+    if (RC_abs(rc_ctrl.lookline.ch[2]) > RC_CHANNAL_ERROR_VALUE)
     {
         goto error;
     }
-    if (RC_abs(rc_ctrl.rc.ch[3]) > RC_CHANNAL_ERROR_VALUE)
+    if (RC_abs(rc_ctrl.lookline.ch[3]) > RC_CHANNAL_ERROR_VALUE)
     {
         goto error;
     }
-    if (rc_ctrl.rc.s[0] == 0)
+    if (rc_ctrl.lookline.s[0] == 0)
     {
         goto error;
     }
-    if (rc_ctrl.rc.s[1] == 0)
+    if (rc_ctrl.lookline.s[1] == 0)
     {
         goto error;
     }
     return 0;
 
 error:
-    rc_ctrl.rc.ch[0] = 0;
-    rc_ctrl.rc.ch[1] = 0;
-    rc_ctrl.rc.ch[2] = 0;
-    rc_ctrl.rc.ch[3] = 0;
-    rc_ctrl.rc.ch[4] = 0;
-    rc_ctrl.rc.s[0] = RC_SW_DOWN;
-    rc_ctrl.rc.s[1] = RC_SW_DOWN;
+    rc_ctrl.lookline.ch[0] = 0;
+    rc_ctrl.lookline.ch[1] = 0;
+    rc_ctrl.lookline.ch[2] = 0;
+    rc_ctrl.lookline.ch[3] = 0;
+    rc_ctrl.lookline.ch[4] = 0;
+    rc_ctrl.lookline.s[0] = RC_SW_DOWN;
+    rc_ctrl.lookline.s[1] = RC_SW_DOWN;
     rc_ctrl.mouse.x = 0;
     rc_ctrl.mouse.y = 0;
     rc_ctrl.mouse.z = 0;
@@ -371,26 +371,26 @@ static void sbus_to_rc(volatile const uint8_t *sbus_buf, RC_ctrl_t *rc_ctrl)
         return;
     }
 
-    rc_ctrl->rc.ch[0] = (sbus_buf[0] | (sbus_buf[1] << 8)) & 0x07ff;        //!< Channel 0
-    rc_ctrl->rc.ch[1] = ((sbus_buf[1] >> 3) | (sbus_buf[2] << 5)) & 0x07ff; //!< Channel 1
-    rc_ctrl->rc.ch[2] = ((sbus_buf[2] >> 6) | (sbus_buf[3] << 2) |          //!< Channel 2
+    rc_ctrl->lookline.ch[0] = (sbus_buf[0] | (sbus_buf[1] << 8)) & 0x07ff;        //!< Channel 0
+    rc_ctrl->lookline.ch[1] = ((sbus_buf[1] >> 3) | (sbus_buf[2] << 5)) & 0x07ff; //!< Channel 1
+    rc_ctrl->lookline.ch[2] = ((sbus_buf[2] >> 6) | (sbus_buf[3] << 2) |          //!< Channel 2
                          (sbus_buf[4] << 10)) &0x07ff;
-    rc_ctrl->rc.ch[3] = ((sbus_buf[4] >> 1) | (sbus_buf[5] << 7)) & 0x07ff; //!< Channel 3
-    rc_ctrl->rc.s[0] = ((sbus_buf[5] >> 4) & 0x0003);                  //!< Switch left
-    rc_ctrl->rc.s[1] = ((sbus_buf[5] >> 4) & 0x000C) >> 2;                       //!< Switch right
+    rc_ctrl->lookline.ch[3] = ((sbus_buf[4] >> 1) | (sbus_buf[5] << 7)) & 0x07ff; //!< Channel 3
+    rc_ctrl->lookline.s[0] = ((sbus_buf[5] >> 4) & 0x0003);                  //!< Switch left
+    rc_ctrl->lookline.s[1] = ((sbus_buf[5] >> 4) & 0x000C) >> 2;                       //!< Switch right
     rc_ctrl->mouse.x = sbus_buf[6] | (sbus_buf[7] << 8);                    //!< Mouse X axis
     rc_ctrl->mouse.y = sbus_buf[8] | (sbus_buf[9] << 8);                    //!< Mouse Y axis
     rc_ctrl->mouse.z = sbus_buf[10] | (sbus_buf[11] << 8);                  //!< Mouse Z axis
     rc_ctrl->mouse.press_l = sbus_buf[12];                                  //!< Mouse Left Is Press ?
     rc_ctrl->mouse.press_r = sbus_buf[13];                                  //!< Mouse Right Is Press ?
     rc_ctrl->key.v = sbus_buf[14] | (sbus_buf[15] << 8);                    //!< KeyBoard value
-    rc_ctrl->rc.ch[4] = sbus_buf[16] | (sbus_buf[17] << 8);                 //NULL
+    rc_ctrl->lookline.ch[4] = sbus_buf[16] | (sbus_buf[17] << 8);                 //NULL
 
-    rc_ctrl->rc.ch[0] -= RC_CH_VALUE_OFFSET;
-    rc_ctrl->rc.ch[1] -= RC_CH_VALUE_OFFSET;
-    rc_ctrl->rc.ch[2] -= RC_CH_VALUE_OFFSET;
-    rc_ctrl->rc.ch[3] -= RC_CH_VALUE_OFFSET;
-    rc_ctrl->rc.ch[4] -= RC_CH_VALUE_OFFSET;
+    rc_ctrl->lookline.ch[0] -= RC_CH_VALUE_OFFSET;
+    rc_ctrl->lookline.ch[1] -= RC_CH_VALUE_OFFSET;
+    rc_ctrl->lookline.ch[2] -= RC_CH_VALUE_OFFSET;
+    rc_ctrl->lookline.ch[3] -= RC_CH_VALUE_OFFSET;
+    rc_ctrl->lookline.ch[4] -= RC_CH_VALUE_OFFSET;
 }
 
 // SBUS通道解析
@@ -598,13 +598,13 @@ inline bool GetRcOffline(void)
   * @param[in]      ch 通道id，0-右平, 1-右竖, 2-左平, 3-左竖, 4-左滚轮，配合ch id宏进行使用
   * @retval         DT7遥控器通道值，范围为 [−1,1]
   */
-inline float GetDt7RcCh(uint8_t ch) { return rc_ctrl.rc.ch[ch] * RC_TO_ONE; }
+inline float GetDt7RcCh(uint8_t ch) { return rc_ctrl.lookline.ch[ch] * RC_TO_ONE; }
 /**
   * @brief          获取DT7遥控器拨杆值，可配合switch_is_xxx系列宏函数使用。
   * @param[in]      sw 通道id，0-右, 1-左，配合sw id宏进行使用
   * @retval         DT7遥控器拨杆值，范围为{1,2,3}
   */
-inline char GetDt7RcSw(uint8_t sw) { return rc_ctrl.rc.s[sw]; }
+inline char GetDt7RcSw(uint8_t sw) { return rc_ctrl.lookline.s[sw]; }
 /**
   * @brief          获取鼠标axis轴的移动速度
   * @param[in]      axis 轴id, 0-, 1-, 2-，配合轴id宏进行使用

@@ -73,19 +73,19 @@ void CanSendRcDataToBoard(uint8_t can, uint16_t target_id, uint16_t index)
 
         bool offline = GetRcOffline();
         uint16_t ch[5];
-        ch[0] = rc_ctrl->rc.ch[0] + RC_CH_VALUE_OFFSET;
-        ch[1] = rc_ctrl->rc.ch[1] + RC_CH_VALUE_OFFSET;
-        ch[2] = rc_ctrl->rc.ch[2] + RC_CH_VALUE_OFFSET;
-        ch[3] = rc_ctrl->rc.ch[3] + RC_CH_VALUE_OFFSET;
-        ch[4] = rc_ctrl->rc.ch[4] + RC_CH_VALUE_OFFSET;
+        ch[0] = rc_ctrl->lookline.ch[0] + RC_CH_VALUE_OFFSET;
+        ch[1] = rc_ctrl->lookline.ch[1] + RC_CH_VALUE_OFFSET;
+        ch[2] = rc_ctrl->lookline.ch[2] + RC_CH_VALUE_OFFSET;
+        ch[3] = rc_ctrl->lookline.ch[3] + RC_CH_VALUE_OFFSET;
+        ch[4] = rc_ctrl->lookline.ch[4] + RC_CH_VALUE_OFFSET;
 
         SEND_CBC.rc_data.rc.packed.ch0 = ch[0];
         SEND_CBC.rc_data.rc.packed.ch1 = ch[1];
         SEND_CBC.rc_data.rc.packed.ch2 = ch[2];
         SEND_CBC.rc_data.rc.packed.ch3 = ch[3];
         SEND_CBC.rc_data.rc.packed.ch4 = ch[4];
-        SEND_CBC.rc_data.rc.packed.s0 = rc_ctrl->rc.s[0];
-        SEND_CBC.rc_data.rc.packed.s1 = rc_ctrl->rc.s[1];
+        SEND_CBC.rc_data.rc.packed.s0 = rc_ctrl->lookline.s[0];
+        SEND_CBC.rc_data.rc.packed.s1 = rc_ctrl->lookline.s[1];
         SEND_CBC.rc_data.rc.packed.offline = offline;
 
         SendData(can, std_id, SEND_CBC.rc_data.rc.raw.data);

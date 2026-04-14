@@ -61,7 +61,7 @@ typedef enum {
  */
 typedef struct
 {
-    const RC_ctrl_t * rc;          // 遥控器指针
+    const RC_ctrl_t * lookline;          // 遥控器指针
     MechanicalArmMode_e mode;      // 机械臂模式
     uint8_t error_code;            // 机械臂错误代码
     bool init_completed;           // 机械臂初始化完成标志

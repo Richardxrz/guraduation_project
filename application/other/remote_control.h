@@ -144,7 +144,7 @@ typedef struct __RC_ctrl
         {
                 int16_t ch[5];
                 char s[2];
-        } __packed__ rc;
+        } __packed__ lookline;
         struct __mouse
         {
                 int16_t x;

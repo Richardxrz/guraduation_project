@@ -140,7 +140,7 @@ float GetMechanicalArmJ0Angle(void)
 
 void MechanicalArmInit(void)
 {
-    MECHANICAL_ARM.rc = get_remote_control_point();
+    MECHANICAL_ARM.lookline = get_remote_control_point();
 
     MECHANICAL_ARM.init_completed = false;
     MECHANICAL_ARM.reach_time = 0;
@@ -210,11 +210,11 @@ void MechanicalArmSetMode(void)
         return;
     }
 
-    if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+    if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_DEBUG;
-    } else if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+    } else if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_DEBUG;
-    } else if (switch_is_down(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+    } else if (switch_is_down(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_HOLD;
     }
 }
@@ -347,7 +347,6 @@ void MechanicalArmReference(void)
         }
             last_mode = MECHANICAL_ARM_DEBUG;
 
-            // 遥控器控制关节（摇杆控制）
             // j0 右水平
             MA.ref.joint[J0].angle += GetDt7RcCh(DT7_CH_LH) * 0.002f;
             MA.ref.joint[J0].angle = fp32_constrain(
@@ -363,11 +362,10 @@ void MechanicalArmReference(void)
             MA.ref.joint[J2].angle = fp32_constrain(
                     MA.ref.joint[J2].angle, MA.limit.min.pos[J2], MA.limit.max.pos[J2]);
 
-            // 左拨杆中档 → 最小角度(0°), 上档 → 最大角度(180°)
-            if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 0.0f;    // 中档：最小角度
-            } else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 180.0f;  // 上档：最大角度
+            if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.servo.angle[0] = 0.0f;
+            } else if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.servo.angle[0] = 180.0f;
             }
             // ====================================================
         break;
@@ -391,7 +389,7 @@ void MechanicalArmReference(void)
 /*----------------------------------------------------------------*/
 /* main function:       MechanicalArmConsole                      */
 /******************************************************************/
-fp32 PID_calc_value = 0;
+// fp32 PID_calc_value = 0;
 void MechanicalArmConsole(void)
 {
     switch (MECHANICAL_ARM.mode) {
@@ -404,9 +402,8 @@ void MechanicalArmConsole(void)
             MA.joint_motor[J0].set.value =
                 PID_calc(&MA.pid.j0[1], MA.fdb.joint[J0].velocity, MA.joint_motor[J0].set.vel);
 
-            PID_calc_value = PID_calc(&MA.pid.j0[0], MA.fdb.joint[J0].angle, MA.ref.joint[J0].angle);
+            // PID_calc_value = PID_calc(&MA.pid.j0[0], MA.fdb.joint[J0].angle, MA.ref.joint[J0].angle);
             // J1
-            // MA.joint_motor[J1].set.vel = 0;
             MA.joint_motor[J1].set.vel =
                 PID_calc(&MA.pid.j1[0], MA.fdb.joint[J1].angle, MA.ref.joint[J1].angle) *
                 MA.joint_motor[J1].direction * MA.joint_motor[J1].reduction_ratio;
@@ -414,7 +411,6 @@ void MechanicalArmConsole(void)
                 PID_calc(&MA.pid.j1[1], MA.fdb.joint[J1].velocity, MA.joint_motor[J1].set.vel);
 
             // J2
-            // MA.joint_motor[J2].set.vel = 0;
             MA.joint_motor[J2].set.vel =
                 PID_calc(&MA.pid.j2[0], MA.fdb.joint[J2].angle, MA.ref.joint[J2].angle) *
                 MA.joint_motor[J2].direction * MA.joint_motor[J2].reduction_ratio;
@@ -515,12 +511,6 @@ void ArmSendCmdDebug(void)
         MA.joint_motor[J2].set.value,
         0);
 
-    // static uint32_t test_counter = 0;
-    // static uint16_t angle = 90;
-    // test_counter++;
-    // if (test_counter % 1000 == 0) {  // 每1秒改变角度
-    //     angle = (angle == 90) ? 45 : ((angle == 45) ? 135 : 90);
-    // }
     PwmCmdServo(0, MA.servo.angle[0]);
 }
 

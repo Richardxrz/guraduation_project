@@ -243,19 +243,19 @@ static void DecodeStdIdData(hcan_t * CAN, CAN_RxHeaderTypeDef * rx_header, uint8
                 case 0: {  // 遥控器数据
                     memcpy(&RECEIVE_CBC.rc_data.rc.raw.data, rx_data, 8);
 
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[0] = RECEIVE_CBC.rc_data.rc.packed.ch0;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[1] = RECEIVE_CBC.rc_data.rc.packed.ch1;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[2] = RECEIVE_CBC.rc_data.rc.packed.ch2;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[3] = RECEIVE_CBC.rc_data.rc.packed.ch3;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[4] = RECEIVE_CBC.rc_data.rc.packed.ch4;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.s[0] = RECEIVE_CBC.rc_data.rc.packed.s0;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.s[1] = RECEIVE_CBC.rc_data.rc.packed.s1;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[0] = RECEIVE_CBC.rc_data.rc.packed.ch0;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[1] = RECEIVE_CBC.rc_data.rc.packed.ch1;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[2] = RECEIVE_CBC.rc_data.rc.packed.ch2;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[3] = RECEIVE_CBC.rc_data.rc.packed.ch3;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[4] = RECEIVE_CBC.rc_data.rc.packed.ch4;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.s[0] = RECEIVE_CBC.rc_data.rc.packed.s0;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.s[1] = RECEIVE_CBC.rc_data.rc.packed.s1;
 
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[0] -= RC_CH_VALUE_OFFSET;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[1] -= RC_CH_VALUE_OFFSET;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[2] -= RC_CH_VALUE_OFFSET;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[3] -= RC_CH_VALUE_OFFSET;
-                    RECEIVE_CBC.rc_data.rc_unpacked.rc.ch[4] -= RC_CH_VALUE_OFFSET;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[0] -= RC_CH_VALUE_OFFSET;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[1] -= RC_CH_VALUE_OFFSET;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[2] -= RC_CH_VALUE_OFFSET;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[3] -= RC_CH_VALUE_OFFSET;
+                    RECEIVE_CBC.rc_data.rc_unpacked.lookline.ch[4] -= RC_CH_VALUE_OFFSET;
                 } break;
                 case 1: {  // 键鼠数据
                     memcpy(&RECEIVE_CBC.rc_data.km.raw.data, rx_data, 8);
