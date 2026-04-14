@@ -42,8 +42,8 @@
 #include "remote_control.h"
 
 #include "chassis_task.h"
-#include "detect_task.h"
 #include "led_flow_task.h"
+// #include "PWM_cmd_servo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,7 +64,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+// uint8_t servo_id = 0;
+// uint16_t angle = 90;
+// static uint32_t test_counter = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -153,6 +155,17 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    // test_counter++;
+    // if (test_counter % 1000 == 0) {  // 每1秒改变一次角度
+    //   if (angle == 90) {
+    //     angle = 45;
+    //   } else if (angle == 45) {
+    //     angle = 135;
+    //   } else {
+    //     angle = 90;
+    //   }
+    // }
+    // PwmCmdServo(servo_id, angle);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

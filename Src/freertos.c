@@ -32,7 +32,7 @@
 #include "led_flow_task.h"
 #include "mechanical_arm_task.h"
 #include "music_task.h"
-#include "communication_task.h"
+// #include "communication_task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -188,8 +188,8 @@ void MX_FREERTOS_Init(void) {
     // osThreadDef(DETECT, detect_task, osPriorityNormal, 0, 256);
     // detect_handle = osThreadCreate(osThread(DETECT), NULL);
 
-    osThreadDef(COMMUNICATION, communication_task, osPriorityNormal, 0, 256);
-    communication_handle = osThreadCreate(osThread(COMMUNICATION), NULL);
+    // osThreadDef(COMMUNICATION, communication_task, osPriorityNormal, 0, 256);
+    // communication_handle = osThreadCreate(osThread(COMMUNICATION), NULL);
 
 #if (CHASSIS_TYPE != CHASSIS_NONE)
     osThreadDef(ChassisTask, chassis_task, osPriorityAboveNormal, 0, 512);

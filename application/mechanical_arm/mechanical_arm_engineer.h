@@ -137,6 +137,10 @@ typedef struct
         LowPassFilter_t j[7]; // 改为7
     } lpf;
 
+    struct {
+          float angle[2];  // 舵机0和1的目标角度（0-180°）
+    } servo;
+
 } MechanicalArm_s;
 
 /*-------------------- Function Declaration --------------------*/

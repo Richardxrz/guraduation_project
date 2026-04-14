@@ -30,8 +30,9 @@
    * @param[in]      pwm pwm信号占空比
    * @retval         none
    */
-void PwmCmdServo(uint8_t pump_id, uint16_t pwm)
+void PwmCmdServo(uint8_t pump_id, uint16_t angle)
 {
+    uint16_t pwm = angle2pwm(angle);
     if (pwm > SERVO_MAX_PWM) {
         pwm = SERVO_MAX_PWM;
     } else if (pwm < SERVO_MIN_PWM) {
@@ -39,4 +40,9 @@ void PwmCmdServo(uint8_t pump_id, uint16_t pwm)
     }
 
     servo_pwm_set(pwm, pump_id);
+}
+
+uint16_t angle2pwm(uint16_t angle)
+{
+    return (SERVO_MAX_PWM - SERVO_MIN_PWM) * angle / 180 + SERVO_MIN_PWM;
 }

@@ -63,7 +63,6 @@ void ChassisInit(void)
     chassis.mode = CHASSIS_LOCK;
     chassis.sc_flag = 0;
     chassis.spin_flag = 0;
-    chassis.shift_pressed = false;
 }
 
 
@@ -85,13 +84,17 @@ void ChassisSetMode(void)
     }
 #endif
 
-    if (switch_is_mid(chassis.rc->rc.s[0]))
+    if (switch_is_down(chassis.rc->rc.s[0]))
+    {
+        chassis.mode = CHASSIS_LOCK;
+    }
+    else if (switch_is_mid(chassis.rc->rc.s[0]))
     {
         chassis.mode = CHASSIS_SINGLE;
     }
     else if (switch_is_up(chassis.rc->rc.s[0]))
     {
-        chassis.mode = CHASSIS_FOLLOW;
+        chassis.mode = CHASSIS_SINGLE;
     }
 }
 

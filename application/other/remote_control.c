@@ -45,7 +45,7 @@
 #include "string.h"
 
 #include "robot_param.h"
-#include "communication.h"
+// #include "communication.h"
 
 // 遥控器掉线时间阈值
 #define RC_LOST_TIME 100  // ms
