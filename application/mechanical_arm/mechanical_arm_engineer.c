@@ -141,6 +141,7 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.limit.min.pos[J1] = MIN_JOINT_1_POSITION;
     MECHANICAL_ARM.limit.min.pos[J2] = MIN_JOINT_2_POSITION;
     // #memset ---------------------
+    // 将一块内存区域的所有字节设置为指定的值
     memset(&MECHANICAL_ARM.fdb, 0, sizeof(MECHANICAL_ARM.fdb));
     memset(&MECHANICAL_ARM.ref, 0, sizeof(MECHANICAL_ARM.ref));
     // #ref init ---------------------
