@@ -77,7 +77,8 @@ void ChassisSetMode(void)
 {
 #if (MECHANICAL_ARM_TYPE == MECHANICAL_ARM_ENGINEER_ARM)
     MechanicalArmMode_e arm_mode = GetMechanicalArmMode();
-    if (arm_mode == MECHANICAL_ARM_DEBUG)
+    // 修复：当机械臂处于DEBUG或FOLLOW模式时，底盘锁定
+    if (arm_mode == MECHANICAL_ARM_DEBUG || arm_mode == MECHANICAL_ARM_FOLLOW)
     {
         chassis.mode = CHASSIS_LOCK;
         return;

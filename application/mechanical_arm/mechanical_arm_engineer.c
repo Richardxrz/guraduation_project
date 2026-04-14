@@ -78,11 +78,6 @@
 #define INIT_2006_SET_VALUE (-1000)  // 2006电机在进行初始化时的电流设置值
 #define INIT_2006_MIN_VEL 1          // 2006电机初始化完成的速度阈值
 
-// 气泵相关
-// #define PUMP_ON_PWM 30000
-// #define PUMP_OFF_PWM 0
-// #define PUMP_PWM_CHANNEL 1
-
 #define JointMotorInit(index)                                                                    \
     MotorInit(                                                                                   \
         &MECHANICAL_ARM.joint_motor[index], JOINT_MOTOR_##index##_ID, JOINT_MOTOR_##index##_CAN, \
@@ -112,6 +107,7 @@
 MechanicalArm_s MECHANICAL_ARM;
 #define MA MECHANICAL_ARM
 
+float angle[2];
 
 /*------------------------------ Function Definition ------------------------------*/
 
@@ -152,42 +148,22 @@ void MechanicalArmInit(void)
     JointMotorInit(0);
     JointMotorInit(1);
     JointMotorInit(2);
-    // JointMotorInit(3);
-    // JointMotorInit(4);
-    // JointMotorInit(5);
-    // JointMotorInit(6);
     // #PID init ---------------------
     JointPidInit(0);
     JointPidInit(1);
     JointPidInit(2);
-    // JointPidInit(3);
-    // JointPidInit(4);
-    // JointPidInit(5);
-    // JointPidInit(6);
     // #LPF init ---------------------
     JointLowPassFilterInit(0);
     JointLowPassFilterInit(1);
     JointLowPassFilterInit(2);
-    // JointLowPassFilterInit(3);
-    // JointLowPassFilterInit(4);
-    // JointLowPassFilterInit(5);
-    // JointLowPassFilterInit(6);
     // #limit init ---------------------
     MECHANICAL_ARM.limit.max.pos[J0] = MAX_JOINT_0_POSITION;
     MECHANICAL_ARM.limit.max.pos[J1] = MAX_JOINT_1_POSITION;
     MECHANICAL_ARM.limit.max.pos[J2] = MAX_JOINT_2_POSITION;
-    // MECHANICAL_ARM.limit.max.pos[J3] = MAX_JOINT_3_POSITION;
-    // MECHANICAL_ARM.limit.max.pos[J4] = MAX_JOINT_4_POSITION;
-    // MECHANICAL_ARM.limit.max.pos[J5] = MAX_JOINT_5_POSITION;
-    // MECHANICAL_ARM.limit.max.pos[J6] = MAX_JOINT_6_POSITION;
 
     MECHANICAL_ARM.limit.min.pos[J0] = MIN_JOINT_0_POSITION;
     MECHANICAL_ARM.limit.min.pos[J1] = MIN_JOINT_1_POSITION;
     MECHANICAL_ARM.limit.min.pos[J2] = MIN_JOINT_2_POSITION;
-    // MECHANICAL_ARM.limit.min.pos[J3] = MIN_JOINT_3_POSITION;
-    // MECHANICAL_ARM.limit.min.pos[J4] = MIN_JOINT_4_POSITION;
-    // MECHANICAL_ARM.limit.min.pos[J5] = MIN_JOINT_5_POSITION;
-    // MECHANICAL_ARM.limit.min.pos[J6] = MIN_JOINT_6_POSITION;
     // #memset ---------------------
     memset(&MECHANICAL_ARM.fdb, 0, sizeof(MECHANICAL_ARM.fdb));
     memset(&MECHANICAL_ARM.ref, 0, sizeof(MECHANICAL_ARM.ref));
@@ -195,10 +171,6 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.ref.joint[J0].angle = 0.0f;
     MECHANICAL_ARM.ref.joint[J1].angle = MECHANICAL_ARM.limit.max.pos[J1];
     MECHANICAL_ARM.ref.joint[J2].angle = MECHANICAL_ARM.limit.min.pos[J2];
-    // MECHANICAL_ARM.ref.joint[J3].angle = 0.0f;
-    // MECHANICAL_ARM.ref.joint[J4].angle = 0.0f;
-    // MECHANICAL_ARM.ref.joint[J5].angle = 0.0f;
-    // MECHANICAL_ARM.ref.joint[J6].angle = 0.0f;
 
     // #Initial value setting ---------------------
     MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
@@ -209,94 +181,16 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.transform.dpos[J0] = J0_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J1] = J1_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J2] = J2_ANGLE_TRANSFORM;
-    // MECHANICAL_ARM.transform.dpos[J3] = J3_ANGLE_TRANSFORM;
-    // MECHANICAL_ARM.transform.dpos[J4] = J4_ANGLE_TRANSFORM;
-    // MECHANICAL_ARM.transform.dpos[J5] = J5_ANGLE_TRANSFORM;
-    // MECHANICAL_ARM.transform.dpos[J6] = J6_ANGLE_TRANSFORM;
 
     MECHANICAL_ARM.transform.duration[J0] = 2;
     MECHANICAL_ARM.transform.duration[J1] = 4;
     MECHANICAL_ARM.transform.duration[J2] = 4;
-    // MECHANICAL_ARM.transform.duration[J3] = 2;
-    // MECHANICAL_ARM.transform.duration[J4] = 1;
-    // MECHANICAL_ARM.transform.duration[J5] = 1;
-    // MECHANICAL_ARM.transform.duration[J6] = 1;
+
+    // #Servo init ---------------------
+    // angle[0] = 90.0f;  // 舵机0初始化为中位
+    // angle[1] = 90.0f;  // 舵机1初始化为中位
 }
 
-/******************************************************************/
-/* HandleException                                                */
-/******************************************************************/
-/**
- * @brief  机械臂异常处理函数
- * 
- * @description
- *          该函数用于处理机械臂的异常情况，主要包括:
- *          1. 初始化阶段检测：监测 J4、J5 关节电机速度，判断是否达到机械限位
- *          2. 虚拟关节限位设置：根据实际位置计算并设置虚拟 J4 关节的运动范围限制
- *          3. 状态同步：初始化完成后将参考位置同步到当前反馈位置
- *          4. 力矩异常检测：监测 J1、J2 关节的输出力矩，判断是否超出安全范围
- * 
- * @note
- *       - 初始化完成条件：J4 和 J5 电机反馈速度均小于 INIT_2006_MIN_VEL 阈值
- *       - 限位判定条件：低速状态持续超过 200ms
- *       - 虚拟 J4 关节位置计算：vj4 = (j4 - j5) / 2
- *       - 力矩异常阈值：10 (单位取决于电机力矩反馈标定)
- * 
- * @par 修改历史:
- *          - 初始版本：实现机械臂初始化检测和异常监控功能
- * 
- */
-// TODO: 修改
-// void MechanicalArmHandleException(void)
-// {
-//     if (MECHANICAL_ARM.mode == MECHANICAL_ARM_INIT) {
-//         // 初始化时如果电机反馈的速度小于阈值，则认为电机初始化完成
-//         // if (fabsf(MECHANICAL_ARM.joint_motor[J4].fdb.vel) < INIT_2006_MIN_VEL &&
-//         //     fabsf(MECHANICAL_ARM.joint_motor[J5].fdb.vel) < INIT_2006_MIN_VEL) {
-//         //     MECHANICAL_ARM.reach_time += MECHANICAL_ARM.duration;
-//         // } else {
-//         //     MECHANICAL_ARM.reach_time = 0;
-//         // }
-
-//         // if (MECHANICAL_ARM.reach_time > 200 && !MECHANICAL_ARM.init_completed) {
-//         //     // 停止时间超过200ms则认为达到限位
-//         //     MECHANICAL_ARM.init_completed = true;
-//         //     float virtual_j4_pos =
-//         //         (MECHANICAL_ARM.fdb.joint[J4].angle - MECHANICAL_ARM.fdb.joint[J5].angle) / 2;
-//         //     float virtual_j5_pos =
-//         //         MECHANICAL_ARM.fdb.joint[J4].angle + MECHANICAL_ARM.fdb.joint[J5].angle;
-//         //     // 设置虚拟关节J4关节的位置限制
-//         //     MECHANICAL_ARM.limit.max.vj4_pos = virtual_j4_pos - 0.15f + M_PI;
-//         //     MECHANICAL_ARM.limit.min.vj4_pos = virtual_j4_pos + 0.15f;
-
-//             // 新增：同步ref到当前fdb值
-//             MECHANICAL_ARM.ref.joint[J0].angle = MECHANICAL_ARM.fdb.joint[J0].angle;
-//             MECHANICAL_ARM.ref.joint[J1].angle = MECHANICAL_ARM.fdb.joint[J1].angle;
-//             MECHANICAL_ARM.ref.joint[J2].angle = MECHANICAL_ARM.fdb.joint[J2].angle;
-//             // MECHANICAL_ARM.ref.joint[J3].angle = MECHANICAL_ARM.fdb.joint[J3].angle;
-//             // MECHANICAL_ARM.ref.joint[J4].angle = MECHANICAL_ARM.fdb.joint[J4].angle;
-//             // MECHANICAL_ARM.ref.joint[J5].angle = MECHANICAL_ARM.fdb.joint[J5].angle;
-//             // MECHANICAL_ARM.ref.joint[J6].angle = MECHANICAL_ARM.fdb.joint[J6].angle;
-//         }
-//         // 新增：初始化过程中如果检测到高速转动超过一定时间，强制进入安全模式
-//         static uint32_t high_speed_duration = 0;
-//         if (fabsf(MECHANICAL_ARM.joint_motor[J4].fdb.vel) > 5.0f ||
-//             fabsf(MECHANICAL_ARM.joint_motor[J5].fdb.vel) > 5.0f) {
-//             high_speed_duration += MECHANICAL_ARM.duration;
-//             if (high_speed_duration > 500) {  // 高速转动超过 500ms
-//                 MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
-//                 high_speed_duration = 0;
-//             }
-//         } else {
-//             high_speed_duration = 0;
-//         }
-//     }    
-
-//     if (fabsf(MECHANICAL_ARM.joint_motor[J1].fdb.tor) > 10 ||
-//         fabsf(MECHANICAL_ARM.joint_motor[J2].fdb.tor) > 10) {
-//         MECHANICAL_ARM.error_code |= JOINT_TORQUE_MORE_OFFSET;
-//     }
-// }
 
 /******************************************************************/
 /* SetMode                                                        */
@@ -307,11 +201,6 @@ void MechanicalArmInit(void)
 
 void MechanicalArmSetMode(void)
 {
-    // if (toe_is_error(DBUS_TOE)) {  // 安全，保命！！！！！！
-    //     MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
-    //     return;
-    // }
-
     if (MECHANICAL_ARM.error_code) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
         return;
@@ -322,12 +211,10 @@ void MechanicalArmSetMode(void)
     }
 
     if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-        // MECHANICAL_ARM.mode = MECHANICAL_ARM_FOLLOW;
         MECHANICAL_ARM.mode = MECHANICAL_ARM_DEBUG;
     } else if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_DEBUG;
     } else if (switch_is_down(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-        // 下档时进入HOLD模式，保持机械臂位姿，允许底盘移动
         MECHANICAL_ARM.mode = MECHANICAL_ARM_HOLD;
     }
 
@@ -436,24 +323,6 @@ static void JointStateObserve(void)
     MA.fdb.joint[J2].angle =
         (angle_fdb[J2] + M_PI * 2 * MA.fdb.joint[J2].round) / MA.joint_motor[J2].reduction_ratio;
 
-#ifdef DEBUG
-    // 更新调试变量,方便 VSCode 监视窗口查看
-    // g_debug_j0_angle = MA.fdb.joint[J0].angle;
-    // g_debug_mode = MA.mode;
-#endif
-
-    // uint8_t i;
-    // for (i = 1; i < 3; i++) {
-    //     MA.fdb.joint[i].angle = theta_transform(
-    //                                 MA.joint_motor[i].fdb.pos, dangle[i],
-    //                                 MA.joint_motor[i].direction, MA.transform.duration[i]) /
-    //                             MA.joint_motor[i].reduction_ratio;
-    //     MA.fdb.joint[i].velocity = MA.joint_motor[i].fdb.vel / MA.joint_motor[i].reduction_ratio *
-    //                                MA.joint_motor[i].direction;
-    //     MA.fdb.joint[i].torque = MA.joint_motor[i].fdb.tor * MA.joint_motor[i].reduction_ratio *
-    //                              MA.joint_motor[i].direction;
-    // }
-
 #undef dangle
 }
 
@@ -476,14 +345,10 @@ void MechanicalArmReference(void)
                 MA.ref.joint[J0].angle = MA.fdb.joint[J0].angle;
                 MA.ref.joint[J1].angle = MA.fdb.joint[J1].angle;
                 MA.ref.joint[J2].angle = MA.fdb.joint[J2].angle;
-                // MA.ref.joint[J3].angle = MA.fdb.joint[J3].angle;
-                // MA.ref.joint[J4].angle = MA.fdb.joint[J4].angle;
-                // MA.ref.joint[J5].angle = MA.fdb.joint[J5].angle;
-                // MA.ref.joint[J6].angle = MA.fdb.joint[J6].angle;
 
                  // 初始化舵机角度为中位
-                MA.servo.angle[0] = 90.0f;
-                MA.servo.angle[1] = 90.0f;
+                // angle[0] = 90.0f;
+                // angle[1] = 90.0f;
         }
             last_mode = MECHANICAL_ARM_DEBUG;
 
@@ -505,11 +370,11 @@ void MechanicalArmReference(void)
 
             // ==================== 舵机档位控制 ====================
             // 左拨杆中档 → 最小角度(0°), 上档 → 最大角度(180°)
-            if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 0.0f;    // 中档：最小角度
-            } else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 180.0f;  // 上档：最大角度
-            }
+            // if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+            //     angle[0] = 0.0f;    // 中档：最小角度
+            // } else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+            //     angle[0] = 180.0f;  // 上档：最大角度
+            // }
             // ====================================================
         break;
         case MECHANICAL_ARM_HOLD: {
@@ -536,7 +401,7 @@ fp32 PID_calc_value = 0;
 void MechanicalArmConsole(void)
 {
     switch (MECHANICAL_ARM.mode) {
-        case MECHANICAL_ARM_FOLLOW: // TODO: 将云台模式换成机械臂跟随
+        case MECHANICAL_ARM_FOLLOW:
         case MECHANICAL_ARM_DEBUG: {
             // J0
             MA.joint_motor[J0].set.vel =
@@ -559,24 +424,6 @@ void MechanicalArmConsole(void)
                 MA.joint_motor[J2].direction * MA.joint_motor[J2].reduction_ratio;
             MA.joint_motor[J2].set.tor = 0;
 
-#ifdef DEBUG
-            // 更新调试变量
-            // g_debug_j4_angle = MA.fdb.joint[J2].angle;
-            // g_debug_pid_output = MA.joint_motor[J2].set.value;
-#endif
-
-            // static uint32_t test_counter = 0;
-            // static uint16_t angle = 90;
-            // test_counter++;
-            // if (test_counter % 1000 == 0) {  // 每1秒改变一次角度
-            //     if (angle == 90) {
-            //         angle = 45;
-            //     } else if (angle == 45) {
-            //         angle = 135;
-            //     } else {
-            //         angle = 90;
-            //     }
-            // }
         } break;
         case MECHANICAL_ARM_HOLD: {
             // 保持模式：继续执行PID控制以保持当前位姿
@@ -658,7 +505,6 @@ void ArmSendCmdSafe(void)
 }
 
 
-// 完全替换整个函数
 /**
  * @brief 发送控制量
  * 
@@ -672,16 +518,14 @@ void ArmSendCmdDebug(void)
         MA.joint_motor[J2].set.value,
         0);
 
-    // if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL]))
+    // uint16_t test_count = 0;
+    // uint16_t angle = 90;
+    // test_count++;
+    // if ( test_count < 10000)
     // {
-    //     MA.servo.angle[0] = 45;
+    //     angle
     // }
-    // else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL]))
-    // {
-    //     MA.servo.angle[0] = 90;
-    // }
-    // PwmCmdServo(0, (uint16_t)MA.servo.angle[0]);
-    
+    // PwmCmdServo(0, angle[0]);
     static uint32_t test_counter = 0;
     static uint16_t angle = 90;
     test_counter++;
@@ -699,17 +543,6 @@ void ArmSendCmdInit(void)
         MA.joint_motor[J1].set.value,
         MA.joint_motor[J2].set.value,
         0);
-    
-    // MA.servo.angle[0] = 0;
-    // PwmCmdServo(0, (uint16_t)MA.servo.angle[0]);
-
-    // static uint32_t test_counter = 0;
-    // static uint16_t angle = 90;
-    // test_counter++;
-    // if (test_counter % 1000 == 0) {  // 每1秒改变角度
-    //       angle = (angle == 90) ? 45 : ((angle == 45) ? 135 : 90);
-    //   }
-    // PwmCmdServo(0, 90);
 }
 
 #endif

@@ -27,12 +27,18 @@
 /**
    * @brief          通过PWM发送PWM信号控制舵机
    * @param[in]      pump_id 舵机ID
-   * @param[in]      pwm pwm信号占空比
+   * @param[in]      angle 舵机角度 (0-180度,支持浮点数)
    * @retval         none
    */
-void PwmCmdServo(uint8_t pump_id, uint16_t angle)
+void PwmCmdServo(uint8_t pump_id, float angle)
 {
+    // 角度范围检查
+    if (angle < 0.0f) angle = 0.0f;
+    if (angle > 180.0f) angle = 180.0f;
+
     uint16_t pwm = angle2pwm(angle);
+
+    // PWM值保护（虽然理论上不会超限，但双重保险）
     if (pwm > SERVO_MAX_PWM) {
         pwm = SERVO_MAX_PWM;
     } else if (pwm < SERVO_MIN_PWM) {
@@ -42,7 +48,7 @@ void PwmCmdServo(uint8_t pump_id, uint16_t angle)
     servo_pwm_set(pwm, pump_id);
 }
 
-uint16_t angle2pwm(uint16_t angle)
+uint16_t angle2pwm(float angle)
 {
-    return (SERVO_MAX_PWM - SERVO_MIN_PWM) * angle / 180 + SERVO_MIN_PWM;
+    return (uint16_t)((SERVO_MAX_PWM - SERVO_MIN_PWM) * angle / 180.0f + SERVO_MIN_PWM);
 }

@@ -17,7 +17,7 @@
 #define PWM_CMD_SERVO_H
 #include "struct_typedef.h"
 
-extern void PwmCmdServo(uint8_t pump_id, uint16_t pwm);
-extern uint16_t angle2pwm(uint16_t angle);
+extern void PwmCmdServo(uint8_t pump_id, float angle);
+extern uint16_t angle2pwm(float angle);
 
 #endif
