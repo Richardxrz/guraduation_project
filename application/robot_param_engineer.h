@@ -99,14 +99,14 @@
 //motor parameters ---------------------
 #define SERVO_1_ID 1
 
-#define JOINT_MOTOR_0_ID 5  // DJi
-#define JOINT_MOTOR_1_ID 1  // DM
-#define JOINT_MOTOR_2_ID 2  // DM
+#define JOINT_MOTOR_0_ID 5
+#define JOINT_MOTOR_1_ID 6
+#define JOINT_MOTOR_2_ID 7
 
 // can1
 #define JOINT_MOTOR_0_CAN ARM_DJI_CAN
-#define JOINT_MOTOR_1_CAN ARM_DM_CAN
-#define JOINT_MOTOR_2_CAN ARM_DM_CAN
+#define JOINT_MOTOR_1_CAN ARM_DJI_CAN
+#define JOINT_MOTOR_2_CAN ARM_DJI_CAN
 // can2
 
 // Mptor type
@@ -142,8 +142,8 @@
 #define MAX_JOINT_2_POSITION  5.0f
 //lower_limit parameters ---------------------
 #define MIN_JOINT_0_POSITION -MAX_JOINT_0_POSITION
-#define MIN_JOINT_1_POSITION -5.0f
-#define MIN_JOINT_2_POSITION -10.0f
+#define MIN_JOINT_1_POSITION -MAX_JOINT_1_POSITION
+#define MIN_JOINT_2_POSITION -MAX_JOINT_2_POSITION
 //clang-format on
 
 //LPF parameters ---------------------
@@ -152,31 +152,31 @@
 #define J2_LPF_ALPHA 0.0f
 
 //PID parameters ---------------------
-// J0角度环PID参数
-#define KP_JOINT_0_ANGLE 3.0f
+//J0角度环PID参数
+#define KP_JOINT_0_ANGLE 2.5f
 #define KI_JOINT_0_ANGLE 0.0f
 #define KD_JOINT_0_ANGLE 0.0f
 #define MAX_IOUT_JOINT_0_ANGLE 0.0f
 #define MAX_OUT_JOINT_0_ANGLE 10.0f
-// J0速度环PID参数
-#define KP_JOINT_0_VELOCITY 20.0f
-#define KI_JOINT_0_VELOCITY 0.0f
-#define KD_JOINT_0_VELOCITY 2.0f
+//J0速度环PID参数
+#define KP_JOINT_0_VELOCITY 18.0f
+#define KI_JOINT_0_VELOCITY 0.1f
+#define KD_JOINT_0_VELOCITY 0.2f
 #define MAX_IOUT_JOINT_0_VELOCITY 0.0f
-#define MAX_OUT_JOINT_0_VELOCITY 500.0f
+#define MAX_OUT_JOINT_0_VELOCITY 1500.0f //10000.0f
 
 // J1角度环PID参数
-#define KP_JOINT_1_ANGLE 3.0f
+#define KP_JOINT_1_ANGLE 2.5f
 #define KI_JOINT_1_ANGLE 0.0f
 #define KD_JOINT_1_ANGLE 0.0f
 #define MAX_IOUT_JOINT_1_ANGLE 0.0f
 #define MAX_OUT_JOINT_1_ANGLE 10.0f
 // J1速度环PID参数
-#define KP_JOINT_1_VELOCITY 20.0f
-#define KI_JOINT_1_VELOCITY 0.0f
-#define KD_JOINT_1_VELOCITY 2.0f
+#define KP_JOINT_1_VELOCITY 18.0f
+#define KI_JOINT_1_VELOCITY 0.1f
+#define KD_JOINT_1_VELOCITY 0.2f
 #define MAX_IOUT_JOINT_1_VELOCITY 0.0f
-#define MAX_OUT_JOINT_1_VELOCITY 500.0f
+#define MAX_OUT_JOINT_1_VELOCITY 1500.0f
 
 // J2角度环PID参数
 #define KP_JOINT_2_ANGLE 3.0f
@@ -185,11 +185,11 @@
 #define MAX_IOUT_JOINT_2_ANGLE 0.0f
 #define MAX_OUT_JOINT_2_ANGLE 10.0f
 // J2速度环PID参数
-#define KP_JOINT_2_VELOCITY 20.0f
+#define KP_JOINT_2_VELOCITY 18.0f
 #define KI_JOINT_2_VELOCITY 0.0f
-#define KD_JOINT_2_VELOCITY 2.0f
+#define KD_JOINT_2_VELOCITY 0.2f
 #define MAX_IOUT_JOINT_2_VELOCITY 0.0f
-#define MAX_OUT_JOINT_2_VELOCITY 500.0f
+#define MAX_OUT_JOINT_2_VELOCITY 1500.0f
 // Init parameters ---------------------
 // Other parameters ---------------------
 

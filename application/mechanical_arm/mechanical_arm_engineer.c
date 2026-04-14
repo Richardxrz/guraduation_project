@@ -219,9 +219,9 @@ void MechanicalArmSetMode(void)
     }
 
     // 非安全模式下，初始化未完成时，进入初始化模式
-    if ((MECHANICAL_ARM.mode != MECHANICAL_ARM_SAFE) && (!MECHANICAL_ARM.init_completed)) {
-        MECHANICAL_ARM.mode = MECHANICAL_ARM_INIT;
-    }
+    // if ((MECHANICAL_ARM.mode != MECHANICAL_ARM_SAFE) && (!MECHANICAL_ARM.init_completed)) {
+    //     MECHANICAL_ARM.mode = MECHANICAL_ARM_INIT;
+    // }
 }
 
 /******************************************************************/
@@ -347,14 +347,14 @@ void MechanicalArmReference(void)
                 MA.ref.joint[J2].angle = MA.fdb.joint[J2].angle;
 
                  // 初始化舵机角度为中位
-                // angle[0] = 90.0f;
-                // angle[1] = 90.0f;
+                angle[0] = 90.0f;
+                angle[1] = 90.0f;
         }
             last_mode = MECHANICAL_ARM_DEBUG;
 
             // 遥控器控制关节（摇杆控制）
             // j0 右水平
-            MA.ref.joint[J0].angle -= GetDt7RcCh(DT7_CH_LH) * 0.002f;
+            MA.ref.joint[J0].angle += GetDt7RcCh(DT7_CH_LH) * 0.002f;
             MA.ref.joint[J0].angle = fp32_constrain(
                 MA.ref.joint[J0].angle, MA.limit.min.pos[J0], MA.limit.max.pos[J0]);
 
@@ -370,11 +370,11 @@ void MechanicalArmReference(void)
 
             // ==================== 舵机档位控制 ====================
             // 左拨杆中档 → 最小角度(0°), 上档 → 最大角度(180°)
-            // if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-            //     angle[0] = 0.0f;    // 中档：最小角度
-            // } else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-            //     angle[0] = 180.0f;  // 上档：最大角度
-            // }
+            if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.servo.angle[0] = 0.0f;    // 中档：最小角度
+            } else if (switch_is_up(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.servo.angle[0] = 180.0f;  // 上档：最大角度
+            }
             // ====================================================
         break;
         case MECHANICAL_ARM_HOLD: {
@@ -410,19 +410,22 @@ void MechanicalArmConsole(void)
             MA.joint_motor[J0].set.value =
                 PID_calc(&MA.pid.j0[1], MA.fdb.joint[J0].velocity, MA.joint_motor[J0].set.vel);
 
+            PID_calc_value = PID_calc(&MA.pid.j0[0], MA.fdb.joint[J0].angle, MA.ref.joint[J0].angle);
             // J1
             // MA.joint_motor[J1].set.vel = 0;
             MA.joint_motor[J1].set.vel =
                 PID_calc(&MA.pid.j1[0], MA.fdb.joint[J1].angle, MA.ref.joint[J1].angle) *
                 MA.joint_motor[J1].direction * MA.joint_motor[J1].reduction_ratio;
-            MA.joint_motor[J1].set.tor = 0;
+            MA.joint_motor[J1].set.value =
+                PID_calc(&MA.pid.j1[1], MA.fdb.joint[J1].velocity, MA.joint_motor[J1].set.vel);
 
             // J2
             // MA.joint_motor[J2].set.vel = 0;
             MA.joint_motor[J2].set.vel =
                 PID_calc(&MA.pid.j2[0], MA.fdb.joint[J2].angle, MA.ref.joint[J2].angle) *
                 MA.joint_motor[J2].direction * MA.joint_motor[J2].reduction_ratio;
-            MA.joint_motor[J2].set.tor = 0;
+            MA.joint_motor[J2].set.value =
+                PID_calc(&MA.pid.j2[1], MA.fdb.joint[J2].velocity, MA.joint_motor[J2].set.vel);
 
         } break;
         case MECHANICAL_ARM_HOLD: {
@@ -512,33 +515,25 @@ void ArmSendCmdSafe(void)
 void ArmSendCmdDebug(void)
 {
     CanCmdDjiMotor(
-        ARM_DM_CAN, 0x1FF,
+        ARM_DJI_CAN, 0x1FF,
         MA.joint_motor[J0].set.value,
         MA.joint_motor[J1].set.value,
         MA.joint_motor[J2].set.value,
         0);
 
-    // uint16_t test_count = 0;
-    // uint16_t angle = 90;
-    // test_count++;
-    // if ( test_count < 10000)
-    // {
-    //     angle
+    // static uint32_t test_counter = 0;
+    // static uint16_t angle = 90;
+    // test_counter++;
+    // if (test_counter % 1000 == 0) {  // 每1秒改变角度
+    //     angle = (angle == 90) ? 45 : ((angle == 45) ? 135 : 90);
     // }
-    // PwmCmdServo(0, angle[0]);
-    static uint32_t test_counter = 0;
-    static uint16_t angle = 90;
-    test_counter++;
-    if (test_counter % 1000 == 0) {  // 每1秒改变角度
-        angle = (angle == 90) ? 45 : ((angle == 45) ? 135 : 90);
-    }
-    PwmCmdServo(0, angle);
+    PwmCmdServo(0, MA.servo.angle[0]);
 }
 
 void ArmSendCmdInit(void)
 {
     CanCmdDjiMotor(
-        ARM_DM_CAN, 0x1FF,
+        ARM_DJI_CAN, 0x1FF,
         MA.joint_motor[J0].set.value,
         MA.joint_motor[J1].set.value,
         MA.joint_motor[J2].set.value,
