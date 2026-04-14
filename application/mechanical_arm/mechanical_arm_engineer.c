@@ -187,8 +187,8 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.transform.duration[J2] = 4;
 
     // #Servo init ---------------------
-    // angle[0] = 90.0f;  // 舵机0初始化为中位
-    // angle[1] = 90.0f;  // 舵机1初始化为中位
+    MA.servo.angle[0] = 90.0f;  // 舵机0初始化为中位
+    MA.servo.angle[1] = 90.0f;  // 舵机1初始化为中位
 }
 
 
@@ -217,11 +217,6 @@ void MechanicalArmSetMode(void)
     } else if (switch_is_down(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
         MECHANICAL_ARM.mode = MECHANICAL_ARM_HOLD;
     }
-
-    // 非安全模式下，初始化未完成时，进入初始化模式
-    // if ((MECHANICAL_ARM.mode != MECHANICAL_ARM_SAFE) && (!MECHANICAL_ARM.init_completed)) {
-    //     MECHANICAL_ARM.mode = MECHANICAL_ARM_INIT;
-    // }
 }
 
 /******************************************************************/
@@ -368,7 +363,6 @@ void MechanicalArmReference(void)
             MA.ref.joint[J2].angle = fp32_constrain(
                     MA.ref.joint[J2].angle, MA.limit.min.pos[J2], MA.limit.max.pos[J2]);
 
-            // ==================== 舵机档位控制 ====================
             // 左拨杆中档 → 最小角度(0°), 上档 → 最大角度(180°)
             if (switch_is_mid(MECHANICAL_ARM.rc->rc.s[MECHANICAL_ARM_MODE_CHANNEL])) {
                 MA.servo.angle[0] = 0.0f;    // 中档：最小角度
