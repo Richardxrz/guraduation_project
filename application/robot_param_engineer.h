@@ -102,37 +102,52 @@
 #define JOINT_MOTOR_0_ID 5
 #define JOINT_MOTOR_1_ID 6
 #define JOINT_MOTOR_2_ID 7
+#define JOINT_MOTOR_3_ID 1
+#define JOINT_MOTOR_4_ID 2
 
 // can1
 #define JOINT_MOTOR_0_CAN ARM_DJI_CAN
 #define JOINT_MOTOR_1_CAN ARM_DJI_CAN
 #define JOINT_MOTOR_2_CAN ARM_DJI_CAN
+#define JOINT_MOTOR_3_CAN ARM_DM_CAN
+#define JOINT_MOTOR_4_CAN ARM_DM_CAN
 // can2
 
 // Mptor type
 #define JOINT_MOTOR_0_TYPE DJI_M2006
 #define JOINT_MOTOR_1_TYPE DJI_M2006
 #define JOINT_MOTOR_2_TYPE DJI_M2006
+#define JOINT_MOTOR_3_TYPE DJI_M2006
+#define JOINT_MOTOR_4_TYPE DJI_M2006
+
 
 // 电机方向
 #define JOINT_MOTOR_0_DIRECTION 1
 #define JOINT_MOTOR_1_DIRECTION 1
 #define JOINT_MOTOR_2_DIRECTION 1
+#define JOINT_MOTOR_3_DIRECTION 1
+#define JOINT_MOTOR_4_DIRECTION 1
 
 // 减速比
 #define JOINT_MOTOR_0_REDUCATION_RATIO 36
 #define JOINT_MOTOR_1_REDUCATION_RATIO 36
 #define JOINT_MOTOR_2_REDUCATION_RATIO 36
+#define JOINT_MOTOR_3_REDUCATION_RATIO 36
+#define JOINT_MOTOR_4_REDUCATION_RATIO 36
 
 // 电机模式
 #define JOINT_MOTOR_0_MODE 0
 #define JOINT_MOTOR_1_MODE 0
 #define JOINT_MOTOR_2_MODE 0
+#define JOINT_MOTOR_3_MODE 0
+#define JOINT_MOTOR_4_MODE 0
 
 //
 #define J0_ANGLE_TRANSFORM 0.0f
 #define J1_ANGLE_TRANSFORM 0.0f
 #define J2_ANGLE_TRANSFORM 0.0f
+#define J3_ANGLE_TRANSFORM 0.0f
+#define J4_ANGLE_TRANSFORM 0.0f
 
 // clang-format off
 // TODO: 这里根据机械设计修改软限位参数
@@ -140,16 +155,22 @@
 #define MAX_JOINT_0_POSITION  M_PI * 3
 #define MAX_JOINT_1_POSITION  2.50f
 #define MAX_JOINT_2_POSITION  5.0f
+#define MAX_JOINT_3_POSITION  M_PI * 2
+#define MAX_JOINT_4_POSITION  M_PI * 2
 //lower_limit parameters ---------------------
 #define MIN_JOINT_0_POSITION -MAX_JOINT_0_POSITION
 #define MIN_JOINT_1_POSITION -MAX_JOINT_1_POSITION
 #define MIN_JOINT_2_POSITION -MAX_JOINT_2_POSITION
+#define MIN_JOINT_3_POSITION -MAX_JOINT_3_POSITION
+#define MIN_JOINT_4_POSITION -MAX_JOINT_4_POSITION
 //clang-format on
 
 //LPF parameters ---------------------
 #define J0_LPF_ALPHA 0.0f
 #define J1_LPF_ALPHA 0.0f
 #define J2_LPF_ALPHA 0.0f
+#define J3_LPF_ALPHA 0.0f
+#define J4_LPF_ALPHA 0.0f
 
 //PID parameters ---------------------
 //J0角度环PID参数
@@ -190,6 +211,34 @@
 #define KD_JOINT_2_VELOCITY 0.2f
 #define MAX_IOUT_JOINT_2_VELOCITY 0.0f
 #define MAX_OUT_JOINT_2_VELOCITY 1500.0f
+
+// J3角度环PID参数
+#define KP_JOINT_3_ANGLE 2.5f
+#define KI_JOINT_3_ANGLE 0.0f
+#define KD_JOINT_3_ANGLE 0.0f
+#define MAX_IOUT_JOINT_3_ANGLE 0.0f
+#define MAX_OUT_JOINT_3_ANGLE 10.0f
+// J3速度环PID参数
+#define KP_JOINT_3_VELOCITY 18.0f
+#define KI_JOINT_3_VELOCITY 0.0f
+#define KD_JOINT_3_VELOCITY 0.2f
+#define MAX_IOUT_JOINT_3_VELOCITY 0.0f
+#define MAX_OUT_JOINT_3_VELOCITY 1500.0f
+
+// J4角度环PID参数
+#define KP_JOINT_4_ANGLE 2.5f
+#define KI_JOINT_4_ANGLE 0.0f
+#define KD_JOINT_4_ANGLE 0.0f
+#define MAX_IOUT_JOINT_4_ANGLE 0.0f
+#define MAX_OUT_JOINT_4_ANGLE 10.0f
+// J4速度环PID参数
+#define KP_JOINT_4_VELOCITY 18.0f
+#define KI_JOINT_4_VELOCITY 0.0f
+#define KD_JOINT_4_VELOCITY 0.2f
+#define MAX_IOUT_JOINT_4_VELOCITY 0.0f
+#define MAX_OUT_JOINT_4_VELOCITY 1500.0f
+
+
 // Init parameters ---------------------
 // Other parameters ---------------------
 

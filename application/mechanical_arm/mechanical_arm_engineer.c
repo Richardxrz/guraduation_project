@@ -39,6 +39,8 @@
 #define J0 0
 #define J1 1
 #define J2 2
+#define J3 3
+#define J4 4
 
 #define DM_DELAY 500  // (us)dm电机发送延时
 
@@ -50,6 +52,12 @@
 
 #define J2_KP_FOLLOW 0
 #define J2_KD_FOLLOW 10
+
+#define J3_KP_FOLLOW 0
+#define J3_KD_FOLLOW 10
+
+#define J4_KP_FOLLOW 0
+#define J4_KD_FOLLOW 10
 
 #define INIT_2006_SET_VALUE (-1000)  // 2006电机在进行初始化时的电流设置值
 #define INIT_2006_MIN_VEL 1          // 2006电机初始化完成的速度阈值
@@ -124,22 +132,32 @@ void MechanicalArmInit(void)
     JointMotorInit(0);
     JointMotorInit(1);
     JointMotorInit(2);
+    JointMotorInit(3);
+    JointMotorInit(4);
     // #PID init ---------------------
     JointPidInit(0);
     JointPidInit(1);
     JointPidInit(2);
+    JointPidInit(3);
+    JointPidInit(4);
     // #LPF init ---------------------
     JointLowPassFilterInit(0);
     JointLowPassFilterInit(1);
     JointLowPassFilterInit(2);
+    JointLowPassFilterInit(3);
+    JointLowPassFilterInit(4);
     // #limit init ---------------------
     MECHANICAL_ARM.limit.max.pos[J0] = MAX_JOINT_0_POSITION;
     MECHANICAL_ARM.limit.max.pos[J1] = MAX_JOINT_1_POSITION;
     MECHANICAL_ARM.limit.max.pos[J2] = MAX_JOINT_2_POSITION;
+    MECHANICAL_ARM.limit.max.pos[J3] = MAX_JOINT_3_POSITION;
+    MECHANICAL_ARM.limit.max.pos[J4] = MAX_JOINT_4_POSITION;
 
     MECHANICAL_ARM.limit.min.pos[J0] = MIN_JOINT_0_POSITION;
     MECHANICAL_ARM.limit.min.pos[J1] = MIN_JOINT_1_POSITION;
     MECHANICAL_ARM.limit.min.pos[J2] = MIN_JOINT_2_POSITION;
+    MECHANICAL_ARM.limit.min.pos[J3] = MIN_JOINT_3_POSITION;
+    MECHANICAL_ARM.limit.min.pos[J4] = MIN_JOINT_4_POSITION;
     // #memset ---------------------
     // 将一块内存区域的所有字节设置为指定的值
     memset(&MECHANICAL_ARM.fdb, 0, sizeof(MECHANICAL_ARM.fdb));
@@ -148,6 +166,8 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.ref.joint[J0].angle = 0.0f;
     MECHANICAL_ARM.ref.joint[J1].angle = MECHANICAL_ARM.limit.max.pos[J1];
     MECHANICAL_ARM.ref.joint[J2].angle = MECHANICAL_ARM.limit.min.pos[J2];
+    MECHANICAL_ARM.ref.joint[J3].angle = MECHANICAL_ARM.limit.min.pos[J3];
+    MECHANICAL_ARM.ref.joint[J4].angle = MECHANICAL_ARM.limit.min.pos[J4];
 
     // #Initial value setting ---------------------
     MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
@@ -158,10 +178,14 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.transform.dpos[J0] = J0_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J1] = J1_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J2] = J2_ANGLE_TRANSFORM;
+    MECHANICAL_ARM.transform.dpos[J3] = J3_ANGLE_TRANSFORM;
+    MECHANICAL_ARM.transform.dpos[J4] = J4_ANGLE_TRANSFORM;
 
     MECHANICAL_ARM.transform.duration[J0] = 2;
     MECHANICAL_ARM.transform.duration[J1] = 4;
     MECHANICAL_ARM.transform.duration[J2] = 4;
+    MECHANICAL_ARM.transform.duration[J3] = 4;
+    MECHANICAL_ARM.transform.duration[J4] = 4;
 
     // #Servo init ---------------------
     MA.servo.angle[0] = 90.0f;  // 舵机0初始化为中位
@@ -252,7 +276,7 @@ static void UpdateMotorStatus(void)
  */
 static void JointStateObserve(void)
 {
-    static float last_angle[3], angle_fdb[3] = {0, 0, 0};
+    static float last_angle[5], angle_fdb[5] = {0, 0, 0, 0, 0};
     float dpos;
 #define dangle MECHANICAL_ARM.transform.dpos
 
@@ -295,6 +319,32 @@ static void JointStateObserve(void)
     MA.fdb.joint[J2].angle =
         (angle_fdb[J2] + M_PI * 2 * MA.fdb.joint[J2].round) / MA.joint_motor[J2].reduction_ratio;
 
+
+    angle_fdb[J3] = theta_transform(
+        MA.joint_motor[J3].fdb.pos, dangle[J3], MA.joint_motor[J3].direction,
+        MA.transform.duration[J3]);
+
+    dpos = angle_fdb[J3] - last_angle[J3];
+    if (fabs(dpos) > M_PI) {
+        MA.fdb.joint[J3].round += (dpos) < 0 ? 1 : -1;
+    }
+    last_angle[J3] = angle_fdb[J3];
+    MA.fdb.joint[J3].angle =
+        (angle_fdb[J3] + M_PI * 2 * MA.fdb.joint[J3].round) / MA.joint_motor[J3].reduction_ratio;
+
+
+    angle_fdb[J4] = theta_transform(
+        MA.joint_motor[J4].fdb.pos, dangle[J4], MA.joint_motor[J4].direction,
+        MA.transform.duration[J4]);
+
+    dpos = angle_fdb[J4] - last_angle[J4];
+    if (fabs(dpos) > M_PI) {
+        MA.fdb.joint[J4].round += (dpos) < 0 ? 1 : -1;
+    }
+    last_angle[J4] = angle_fdb[J4];
+    MA.fdb.joint[J4].angle =
+        (angle_fdb[J4] + M_PI * 2 * MA.fdb.joint[J4].round) / MA.joint_motor[J4].reduction_ratio;
+
 #undef dangle
 }
 
@@ -317,6 +367,8 @@ void MechanicalArmReference(void)
                 MA.ref.joint[J0].angle = MA.fdb.joint[J0].angle;
                 MA.ref.joint[J1].angle = MA.fdb.joint[J1].angle;
                 MA.ref.joint[J2].angle = MA.fdb.joint[J2].angle;
+                MA.ref.joint[J3].angle = MA.fdb.joint[J3].angle;
+                MA.ref.joint[J4].angle = MA.fdb.joint[J4].angle;
 
                  // 初始化舵机角度为中位
                 angle[0] = 90.0f;
@@ -338,6 +390,18 @@ void MechanicalArmReference(void)
             MA.ref.joint[J2].angle += GetDt7RcCh(DT7_CH_LV) * 0.002f;
             MA.ref.joint[J2].angle = fp32_constrain(
                     MA.ref.joint[J2].angle, MA.limit.min.pos[J2], MA.limit.max.pos[J2]);
+
+            // j3 左水平摇杆
+            MA.ref.joint[J3].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
+            MA.ref.joint[J3].angle = fp32_constrain(
+                    MA.ref.joint[J3].angle, MA.limit.min.pos[J3], MA.limit.max.pos[J3]);
+
+            // j4 模式开关
+            if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.ref.joint[J4].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
+                MA.ref.joint[J4].angle = fp32_constrain(
+                        MA.ref.joint[J4].angle, MA.limit.min.pos[J4], MA.limit.max.pos[J4]);
+            }
 
             if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
                 MA.servo.angle[0] = 0.0f;
@@ -394,6 +458,19 @@ void MechanicalArmConsole(void)
             MA.joint_motor[J2].set.value =
                 PID_calc(&MA.pid.j2[1], MA.fdb.joint[J2].velocity, MA.joint_motor[J2].set.vel);
 
+            // J3
+            MA.joint_motor[J3].set.vel =
+                PID_calc(&MA.pid.j3[0], MA.fdb.joint[J3].angle, MA.ref.joint[J3].angle) *
+                MA.joint_motor[J3].direction * MA.joint_motor[J3].reduction_ratio;
+            MA.joint_motor[J3].set.value =
+                PID_calc(&MA.pid.j3[1], MA.fdb.joint[J3].velocity, MA.joint_motor[J3].set.vel);
+            
+            // J4
+            MA.joint_motor[J4].set.vel =
+                PID_calc(&MA.pid.j4[0], MA.fdb.joint[J4].angle, MA.ref.joint[J4].angle) *
+                MA.joint_motor[J4].direction * MA.joint_motor[J4].reduction_ratio;
+            MA.joint_motor[J4].set.value =
+                PID_calc(&MA.pid.j4[1], MA.fdb.joint[J4].velocity, MA.joint_motor[J4].set.vel);
         } break;
         case MECHANICAL_ARM_HOLD: {
             // 保持模式：继续执行PID控制以保持当前位姿
@@ -412,11 +489,23 @@ void MechanicalArmConsole(void)
                 PID_calc(&MA.pid.j2[0], MA.fdb.joint[J2].angle, MA.ref.joint[J2].angle) *
                 MA.joint_motor[J2].direction * MA.joint_motor[J2].reduction_ratio;
             MA.joint_motor[J2].set.tor = 0;
+
+            MA.joint_motor[J3].set.vel =
+                PID_calc(&MA.pid.j3[0], MA.fdb.joint[J3].angle, MA.ref.joint[J3].angle) *
+                MA.joint_motor[J3].direction * MA.joint_motor[J3].reduction_ratio;
+            MA.joint_motor[J3].set.tor = 0;
+
+            MA.joint_motor[J4].set.vel =
+                PID_calc(&MA.pid.j4[0], MA.fdb.joint[J4].angle, MA.ref.joint[J4].angle) *
+                MA.joint_motor[J4].direction * MA.joint_motor[J4].reduction_ratio;
+            MA.joint_motor[J4].set.tor = 0;
         } break;
         case MECHANICAL_ARM_INIT: {  // 设置初始化参数
             MA.joint_motor[J0].set.value = 0;
             MA.joint_motor[J1].set.value = 0;
             MA.joint_motor[J2].set.value = 0;
+            MA.joint_motor[J3].set.value = 0;
+            MA.joint_motor[J4].set.value = 0;
         } break;
         case MECHANICAL_ARM_CALIBRATE:
         case MECHANICAL_ARM_SAFE:
@@ -424,6 +513,8 @@ void MechanicalArmConsole(void)
             MECHANICAL_ARM.joint_motor[J0].set.value = 0;
             MECHANICAL_ARM.joint_motor[J1].set.value = 0;
             MECHANICAL_ARM.joint_motor[J2].set.value = 0;
+            MECHANICAL_ARM.joint_motor[J3].set.value = 0;
+            MECHANICAL_ARM.joint_motor[J4].set.value = 0;
         }
     }
 }
@@ -471,7 +562,8 @@ void MechanicalArmSendCmd(void)
 
 void ArmSendCmdSafe(void)
 {
-    CanCmdDjiMotor(ARM_DM_CAN, 0x1FF, 0, 0, 0, 0);  // 修改为ARM_DM_CAN (CAN2)
+    CanCmdDjiMotor(ARM_DJI_CAN, 0x1FF, 0, 0, 0, 0);  // DJI CAN (CAN1)
+    CanCmdDjiMotor(ARM_DM_CAN, 0x200, 0, 0, 0, 0);  // 修改为ARM_DM_CAN (CAN2)
 }
 
 
@@ -488,6 +580,13 @@ void ArmSendCmdDebug(void)
         MA.joint_motor[J2].set.value,
         0);
 
+    CanCmdDjiMotor(
+        ARM_DM_CAN, 0x200,
+        MA.joint_motor[J3].set.value,
+        MA.joint_motor[J4].set.value,
+        0,
+        0);
+
     PwmCmdServo(0, MA.servo.angle[0]);
 }
 
@@ -495,10 +594,11 @@ void ArmSendCmdInit(void)
 {
     CanCmdDjiMotor(
         ARM_DJI_CAN, 0x1FF,
-        MA.joint_motor[J0].set.value,
-        MA.joint_motor[J1].set.value,
-        MA.joint_motor[J2].set.value,
-        0);
+        0,0,0,0);
+
+    CanCmdDjiMotor(
+        ARM_DM_CAN, 0x1FF,
+        0,0,0,0);
 }
 
 #endif
