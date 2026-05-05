@@ -188,8 +188,8 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.transform.duration[J4] = 4;
 
     // #Servo init ---------------------
-    MA.servo.angle[0] = 75.0f;  // 舵机0初始化为中位
-    MA.servo.angle[1] = 75.0f;  // 舵机1初始化为中位
+    MA.servo.angle[0] = 75.0f;
+    MA.servo.angle[1] = 75.0f;
 }
 
 
