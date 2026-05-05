@@ -124,6 +124,9 @@ int16_t int16_deadline(int16_t Value, int16_t minValue, int16_t maxValue)
 //限幅函数
 fp32 fp32_constrain(fp32 Value, fp32 minValue, fp32 maxValue)
 {
+    if (Value < maxValue && Value > minValue) {
+        Value = 0.0f;
+    }
     if (Value < minValue)
         return minValue;
     else if (Value > maxValue)

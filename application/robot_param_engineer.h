@@ -99,11 +99,11 @@
 //motor parameters ---------------------
 #define SERVO_1_ID 1
 
-#define JOINT_MOTOR_0_ID 5
-#define JOINT_MOTOR_1_ID 6
-#define JOINT_MOTOR_2_ID 7
-#define JOINT_MOTOR_3_ID 1
-#define JOINT_MOTOR_4_ID 2
+#define JOINT_MOTOR_0_ID 1
+#define JOINT_MOTOR_1_ID 2
+#define JOINT_MOTOR_2_ID 3
+#define JOINT_MOTOR_3_ID 4
+#define JOINT_MOTOR_4_ID 5
 
 // can1
 #define JOINT_MOTOR_0_CAN ARM_DJI_CAN

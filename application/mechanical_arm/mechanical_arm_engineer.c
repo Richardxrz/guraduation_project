@@ -188,8 +188,8 @@ void MechanicalArmInit(void)
     MECHANICAL_ARM.transform.duration[J4] = 4;
 
     // #Servo init ---------------------
-    MA.servo.angle[0] = 90.0f;  // 舵机0初始化为中位
-    MA.servo.angle[1] = 90.0f;  // 舵机1初始化为中位
+    MA.servo.angle[0] = 75.0f;  // 舵机0初始化为中位
+    MA.servo.angle[1] = 75.0f;  // 舵机1初始化为中位
 }
 
 
@@ -277,26 +277,38 @@ static void UpdateMotorStatus(void)
 static void JointStateObserve(void)
 {
     static float last_angle[5], angle_fdb[5] = {0, 0, 0, 0, 0};
-    float dpos;
+    float vel,dpos;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #define dangle MECHANICAL_ARM.transform.dpos
 
 
+    // angle_fdb[J0] = theta_transform(
+    //     MA.joint_motor[J0].fdb.pos, dangle[J0], MA.joint_motor[J0].direction,
+    //     MA.transform.duration[J0]);
+
+    // dpos = angle_fdb[J0] - last_angle[J0];
+    // if (fabs(dpos) > M_PI) {
+    //     MA.fdb.joint[J0].round += (dpos) < 0 ? 1 : -1;
+    // }
+    // last_angle[J0] = angle_fdb[J0];
+    // MA.fdb.joint[J0].angle =
+    //     (angle_fdb[J0] + M_PI * 2 * MA.fdb.joint[J0].round) / MA.joint_motor[J0].reduction_ratio;
     angle_fdb[J0] = theta_transform(
         MA.joint_motor[J0].fdb.pos, dangle[J0], MA.joint_motor[J0].direction,
         MA.transform.duration[J0]);
-
-    dpos = angle_fdb[J0] - last_angle[J0];
-    if (fabs(dpos) > M_PI) {
-        MA.fdb.joint[J0].round += (dpos) < 0 ? 1 : -1;
-    }
-    last_angle[J0] = angle_fdb[J0];
-    MA.fdb.joint[J0].angle =
-        (angle_fdb[J0] + M_PI * 2 * MA.fdb.joint[J0].round) / MA.joint_motor[J0].reduction_ratio;
+    
+    MA.fdb.joint[J0].angle = angle_fdb[J0] / MA.joint_motor[J0].reduction_ratio;
+    
+    vel = MA.joint_motor[J0].fdb.vel / MA.joint_motor[J0].reduction_ratio *
+          MA.joint_motor[J0].direction;
+    MA.fdb.joint[J0].velocity = LowPassFilterCalc(&MA.lpf.j[J0], vel);
+    
+    MA.fdb.joint[J0].torque = MA.joint_motor[J0].fdb.tor * MA.joint_motor[J0].reduction_ratio *
+                              MA.joint_motor[J0].direction;
 
 
     angle_fdb[J1] = theta_transform(
         MA.joint_motor[J1].fdb.pos, dangle[J1], MA.joint_motor[J1].direction,
-        MA.transform.duration[J0]);
+        MA.transform.duration[J1]);
 
     dpos = angle_fdb[J1] - last_angle[J1];
     if (fabs(dpos) > M_PI) {
@@ -404,9 +416,9 @@ void MechanicalArmReference(void)
             }
 
             if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 0.0f;
+                MA.servo.angle[0] = 75.0f;
             } else if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 180.0f;
+                MA.servo.angle[0] = 120.0f;
             }
             // ====================================================
         break;
