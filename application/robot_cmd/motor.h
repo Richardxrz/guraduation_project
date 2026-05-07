@@ -252,6 +252,7 @@ typedef struct __Motor
         float tor;   // (N*m)   电机设定力矩
         float vel;   // (rad/s) 电机设定转速
         float pos;   // (rad)   电机设定位置
+        float angle; // (rad)   电机设定角度
 
         float value;  // 可发送的直接控制量，无单位
     } set;

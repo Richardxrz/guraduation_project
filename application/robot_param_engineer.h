@@ -1,4 +1,4 @@
-/**
+1-=-=++/**
   * @file       robot_param_engineer.h
   * @brief      这里是工程机器人参数配置文件，包括物理参数、PID参数等
   */
@@ -61,8 +61,10 @@
 #define WHEEL_4_MOTOR_TYPE ((MotorType_e)DJI_M3508)
 
 //physical parameters ---------------------
-#define WHEEL_RADIUS 0.08f  //(m)轮子直径
-#define WHEEL_CENTER_DISTANCE 0.304138127f  //(m)轮子到车的距离（0.22 + 0.21）
+#define WHEEL_RADIUS 0.05 f  //(m)轮子半径
+#define Wheelbase 0.22856f  //(m)轮距
+#define AxleTrack 0.30593f //(m)轴距
+#define WHEEL_CENTER_DISTANCE 0.304138127f  //(m)轮子到车的距离
 
 //RC parametes ---------------------
 //遥控器相关参数
