@@ -280,18 +280,6 @@ static void JointStateObserve(void)
     float vel,dpos;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 #define dangle MECHANICAL_ARM.transform.dpos
 
-
-    // angle_fdb[J0] = theta_transform(
-    //     MA.joint_motor[J0].fdb.pos, dangle[J0], MA.joint_motor[J0].direction,
-    //     MA.transform.duration[J0]);
-
-    // dpos = angle_fdb[J0] - last_angle[J0];
-    // if (fabs(dpos) > M_PI) {
-    //     MA.fdb.joint[J0].round += (dpos) < 0 ? 1 : -1;
-    // }
-    // last_angle[J0] = angle_fdb[J0];
-    // MA.fdb.joint[J0].angle =
-    //     (angle_fdb[J0] + M_PI * 2 * MA.fdb.joint[J0].round) / MA.joint_motor[J0].reduction_ratio;
     angle_fdb[J0] = theta_transform(
         MA.joint_motor[J0].fdb.pos, dangle[J0], MA.joint_motor[J0].direction,
         MA.transform.duration[J0]);
