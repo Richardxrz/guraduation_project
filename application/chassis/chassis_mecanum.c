@@ -154,13 +154,13 @@ void ChassisReference(void)
  */
 void ChassisConsole(void)
 {
-    // O型麦轮解算
+    // x型麦轮解算
     chassis.set[0] = ( (chassis.reference.vx - chassis.reference.vy) - (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[0].reduction_ratio*chassis.wheel[0].direction;
     chassis.set[1] = ( (chassis.reference.vx + chassis.reference.vy) + (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[1].reduction_ratio*chassis.wheel[1].direction;
     chassis.set[2] = ( (chassis.reference.vx + chassis.reference.vy) - (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[2].reduction_ratio*chassis.wheel[2].direction;
     chassis.set[3] = ( (chassis.reference.vx - chassis.reference.vy) + (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[3].reduction_ratio*chassis.wheel[3].direction;
 
-    // X型麦轮解算
+    // o型麦轮解算
     // chassis.set[0] = ( (chassis.reference.vx + chassis.reference.vy) - (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[0].reduction_ratio*chassis.wheel[0].direction;
     // chassis.set[1] = ( (chassis.reference.vx - chassis.reference.vy) - (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[1].reduction_ratio*chassis.wheel[1].direction;
     // chassis.set[2] = ( (chassis.reference.vx + chassis.reference.vy) + (Wheelbase + AxleTrack)/2.0f*chassis.reference.wz )/WHEEL_RADIUS*chassis.wheel[2].reduction_ratio*chassis.wheel[2].direction;
