@@ -283,15 +283,14 @@ static void JointStateObserve(void)
     angle_fdb[J0] = theta_transform(
         MA.joint_motor[J0].fdb.pos, dangle[J0], MA.joint_motor[J0].direction,
         MA.transform.duration[J0]);
-    
-    MA.fdb.joint[J0].angle = angle_fdb[J0] / MA.joint_motor[J0].reduction_ratio;
-    
-    vel = MA.joint_motor[J0].fdb.vel / MA.joint_motor[J0].reduction_ratio *
-          MA.joint_motor[J0].direction;
-    MA.fdb.joint[J0].velocity = LowPassFilterCalc(&MA.lpf.j[J0], vel);
-    // 获取返回力矩
-    MA.fdb.joint[J0].torque = MA.joint_motor[J0].fdb.tor * MA.joint_motor[J0].reduction_ratio *
-                              MA.joint_motor[J0].direction;
+
+    dpos = angle_fdb[J0] - last_angle[J0];
+    if (fabs(dpos) > M_PI) {
+        MA.fdb.joint[J0].round += (dpos) < 0 ? 1 : -1;
+    }
+    last_angle[J0] = angle_fdb[J0];
+    MA.fdb.joint[J0].angle =
+        (angle_fdb[J0] + M_PI * 2 * MA.fdb.joint[J0].round) / MA.joint_motor[J0].reduction_ratio;
 
 
     angle_fdb[J1] = theta_transform(
@@ -311,13 +310,14 @@ static void JointStateObserve(void)
         MA.joint_motor[J2].fdb.pos, dangle[J2], MA.joint_motor[J2].direction,
         MA.transform.duration[J2]);
 
-    dpos = angle_fdb[J2] - last_angle[J2];
-    if (fabs(dpos) > M_PI) {
-        MA.fdb.joint[J2].round += (dpos) < 0 ? 1 : -1;
-    }
-    last_angle[J2] = angle_fdb[J2];
-    MA.fdb.joint[J2].angle =
-        (angle_fdb[J2] + M_PI * 2 * MA.fdb.joint[J2].round) / MA.joint_motor[J2].reduction_ratio;
+    MA.fdb.joint[J2].angle = angle_fdb[J2] / MA.joint_motor[J2].reduction_ratio;
+
+    vel = MA.joint_motor[J2].fdb.vel / MA.joint_motor[J2].reduction_ratio *
+          MA.joint_motor[J2].direction;
+    MA.fdb.joint[J2].velocity = LowPassFilterCalc(&MA.lpf.j[J2], vel);
+    // 获取返回力矩
+    MA.fdb.joint[J2].torque = MA.joint_motor[J2].fdb.tor * MA.joint_motor[J2].reduction_ratio *
+                              MA.joint_motor[J2].direction;
 
 
     angle_fdb[J3] = theta_transform(
