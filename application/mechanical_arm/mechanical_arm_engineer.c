@@ -372,28 +372,6 @@ void MechanicalArmReference(void)
         }
             last_mode = MECHANICAL_ARM_DEBUG;
 
-            // j0 右水平
-            MA.ref.joint[J0].angle += GetDt7RcCh(DT7_CH_LH) * 0.002f;
-            MA.ref.joint[J0].angle = fp32_constrain(
-                MA.ref.joint[J0].angle, MA.limit.min.pos[J0], MA.limit.max.pos[J0]);
-
-            angle_observe = MA.fdb.joint[J0].angle;
-
-            // j1 左竖直摇杆
-            MA.ref.joint[J1].angle += GetDt7RcCh(DT7_CH_RV) * 0.002f;
-            MA.ref.joint[J1].angle = fp32_constrain(
-                MA.ref.joint[J1].angle, MA.limit.min.pos[J1], MA.limit.max.pos[J1]);
-
-            // j2 右竖直摇杆
-            MA.ref.joint[J2].angle += GetDt7RcCh(DT7_CH_LV) * 0.002f;
-            MA.ref.joint[J2].angle = fp32_constrain(
-                    MA.ref.joint[J2].angle, MA.limit.min.pos[J2], MA.limit.max.pos[J2]);
-
-            // j3 左水平摇杆
-            MA.ref.joint[J3].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
-            MA.ref.joint[J3].angle = fp32_constrain(
-                    MA.ref.joint[J3].angle, MA.limit.min.pos[J3], MA.limit.max.pos[J3]);
-
             // j4 模式开关
             if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
                 MA.ref.joint[J4].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
@@ -403,8 +381,31 @@ void MechanicalArmReference(void)
                 MA.servo.angle[0] = 120.0f;
             }
 
-            // 中档夹爪闭合
+            
             if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                // j0 右水平
+                MA.ref.joint[J0].angle += GetDt7RcCh(DT7_CH_LH) * 0.002f;
+                MA.ref.joint[J0].angle = fp32_constrain(
+                    MA.ref.joint[J0].angle, MA.limit.min.pos[J0], MA.limit.max.pos[J0]);
+
+                angle_observe = MA.fdb.joint[J0].angle;
+
+                // j1 左竖直摇杆
+                MA.ref.joint[J1].angle += GetDt7RcCh(DT7_CH_RV) * 0.002f;
+                MA.ref.joint[J1].angle = fp32_constrain(
+                    MA.ref.joint[J1].angle, MA.limit.min.pos[J1], MA.limit.max.pos[J1]);
+
+                // j2 右竖直摇杆
+                MA.ref.joint[J2].angle += GetDt7RcCh(DT7_CH_LV) * 0.002f;
+                MA.ref.joint[J2].angle = fp32_constrain(
+                    MA.ref.joint[J2].angle, MA.limit.min.pos[J2], MA.limit.max.pos[J2]);
+
+                // j3 左水平摇杆
+                MA.ref.joint[J3].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
+                MA.ref.joint[J3].angle = fp32_constrain(
+                    MA.ref.joint[J3].angle, MA.limit.min.pos[J3], MA.limit.max.pos[J3]);
+                
+                // 中档夹爪闭合
                 MA.servo.angle[0] = 45.0f;
             }
         break;
