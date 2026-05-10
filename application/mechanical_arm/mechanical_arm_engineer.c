@@ -369,10 +369,6 @@ void MechanicalArmReference(void)
                 MA.ref.joint[J2].angle = MA.fdb.joint[J2].angle;
                 MA.ref.joint[J3].angle = MA.fdb.joint[J3].angle;
                 MA.ref.joint[J4].angle = MA.fdb.joint[J4].angle;
-
-                 // 初始化舵机角度为中位
-                angle[0] = 90.0f;
-                angle[1] = 90.0f;
         }
             last_mode = MECHANICAL_ARM_DEBUG;
 
@@ -401,14 +397,14 @@ void MechanicalArmReference(void)
                 MA.ref.joint[J4].angle += GetDt7RcCh(DT7_CH_RH) * 0.002f;
                 MA.ref.joint[J4].angle = fp32_constrain(
                         MA.ref.joint[J4].angle, MA.limit.min.pos[J4], MA.limit.max.pos[J4]);
-            }
-
-            if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
-                MA.servo.angle[0] = 75.0f;
-            } else if (switch_is_up(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                // 上档夹爪开合
                 MA.servo.angle[0] = 120.0f;
             }
-            // ====================================================
+
+            // 中档夹爪闭合
+            if (switch_is_mid(MECHANICAL_ARM.lookline->lookline.s[MECHANICAL_ARM_MODE_CHANNEL])) {
+                MA.servo.angle[0] = 45.0f;
+            }
         break;
         case MECHANICAL_ARM_HOLD: {
             // 保持模式：不更新ref，保持当前目标位置

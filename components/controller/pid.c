@@ -55,6 +55,7 @@ void PID_init(pid_type_def * pid, uint8_t mode, const fp32 PID[3], fp32 max_out,
         0.0f;
 }
 
+// TODO: 添加积分隔离以及微分先行的功能
 /**
   * @brief          pid计算
   * @param[out]     pid: PID结构数据指针
