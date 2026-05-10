@@ -481,22 +481,26 @@ void MechanicalArmConsole(void)
             MA.joint_motor[J1].set.vel =
                 PID_calc(&MA.pid.j1[0], MA.fdb.joint[J1].angle, MA.ref.joint[J1].angle) *
                 MA.joint_motor[J1].direction * MA.joint_motor[J1].reduction_ratio;
-            MA.joint_motor[J1].set.tor = 0;
+            MA.joint_motor[J1].set.value = 
+                PID_calc(&MA.pid.j1[1], MA.fdb.joint[J1].velocity, MA.joint_motor[J1].set.vel);
 
             MA.joint_motor[J2].set.vel =
                 PID_calc(&MA.pid.j2[0], MA.fdb.joint[J2].angle, MA.ref.joint[J2].angle) *
                 MA.joint_motor[J2].direction * MA.joint_motor[J2].reduction_ratio;
-            MA.joint_motor[J2].set.tor = 0;
+            MA.joint_motor[J2].set.value = 
+                PID_calc(&MA.pid.j2[1], MA.fdb.joint[J2].velocity, MA.joint_motor[J2].set.vel);
 
             MA.joint_motor[J3].set.vel =
                 PID_calc(&MA.pid.j3[0], MA.fdb.joint[J3].angle, MA.ref.joint[J3].angle) *
                 MA.joint_motor[J3].direction * MA.joint_motor[J3].reduction_ratio;
-            MA.joint_motor[J3].set.tor = 0;
+            MA.joint_motor[J3].set.value = 
+                PID_calc(&MA.pid.j3[1], MA.fdb.joint[J3].velocity, MA.joint_motor[J3].set.vel);
 
             MA.joint_motor[J4].set.vel =
                 PID_calc(&MA.pid.j4[0], MA.fdb.joint[J4].angle, MA.ref.joint[J4].angle) *
                 MA.joint_motor[J4].direction * MA.joint_motor[J4].reduction_ratio;
-            MA.joint_motor[J4].set.tor = 0;
+            MA.joint_motor[J4].set.value = 
+                PID_calc(&MA.pid.j4[1], MA.fdb.joint[J4].velocity, MA.joint_motor[J4].set.vel);
         } break;
         case MECHANICAL_ARM_INIT: {  // 设置初始化参数
             MA.joint_motor[J0].set.value = 0;
@@ -531,15 +535,6 @@ void ArmSendCmdInit(void);
 
 void MechanicalArmSendCmd(void)
 {
-    uint8_t cnt = 0;
-    for (uint8_t i = 1; i < 3; i++) {
-        if (cnt % 2 == 0) {
-            delay_us(DM_DELAY);
-        }
-    }
-
-    delay_us(DM_DELAY);
-
     switch (MECHANICAL_ARM.mode) {
         case MECHANICAL_ARM_FOLLOW:
         case MECHANICAL_ARM_DEBUG:
@@ -579,7 +574,7 @@ void ArmSendCmdDebug(void)
         MA.joint_motor[J3].set.value);
 
     CanCmdDjiMotor(
-        ARM_DM_CAN, 0x200,
+        ARM_DM_CAN, 0x1FF,
         MA.joint_motor[J4].set.value,
         0, 0, 0);
 
@@ -589,7 +584,7 @@ void ArmSendCmdDebug(void)
 void ArmSendCmdInit(void)
 {
     CanCmdDjiMotor(
-        ARM_DJI_CAN, 0x1FF,
+        ARM_DM_CAN, 0x200,
         0,0,0,0);
 
     CanCmdDjiMotor(
