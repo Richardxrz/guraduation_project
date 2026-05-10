@@ -108,12 +108,12 @@
 #define JOINT_MOTOR_4_ID 5
 
 // can1
+// can2
 #define JOINT_MOTOR_0_CAN ARM_DM_CAN
 #define JOINT_MOTOR_1_CAN ARM_DM_CAN
 #define JOINT_MOTOR_2_CAN ARM_DM_CAN
 #define JOINT_MOTOR_3_CAN ARM_DM_CAN
 #define JOINT_MOTOR_4_CAN ARM_DM_CAN
-// can2
 
 // Mptor type
 #define JOINT_MOTOR_0_TYPE DJI_M2006
@@ -144,7 +144,10 @@
 #define JOINT_MOTOR_3_MODE 0
 #define JOINT_MOTOR_4_MODE 0
 
-//
+/**
+ * @brief 电气零点到机械零点补偿
+ * @note 如果电气零点比机械零点超前，则为正值；如果电气零点比机械零点滞后，则为负值
+ */
 #define J0_ANGLE_TRANSFORM 0.0f
 #define J1_ANGLE_TRANSFORM 0.0f
 #define J2_ANGLE_TRANSFORM 0.0f
@@ -182,11 +185,11 @@
 #define MAX_IOUT_JOINT_0_ANGLE 0.0f
 #define MAX_OUT_JOINT_0_ANGLE 10.0f
 //J0速度环PID参数
-#define KP_JOINT_0_VELOCITY 18.0f
-#define KI_JOINT_0_VELOCITY 0.1f
-#define KD_JOINT_0_VELOCITY 0.2f
+#define KP_JOINT_0_VELOCITY 100.0f
+#define KI_JOINT_0_VELOCITY 0.0f
+#define KD_JOINT_0_VELOCITY 10.0f
 #define MAX_IOUT_JOINT_0_VELOCITY 0.0f
-#define MAX_OUT_JOINT_0_VELOCITY 1500.0f //10000.0f
+#define MAX_OUT_JOINT_0_VELOCITY 2000.0f //10000.0f
 
 // J1角度环PID参数
 #define KP_JOINT_1_ANGLE 2.5f
@@ -195,9 +198,9 @@
 #define MAX_IOUT_JOINT_1_ANGLE 0.0f
 #define MAX_OUT_JOINT_1_ANGLE 10.0f
 // J1速度环PID参数
-#define KP_JOINT_1_VELOCITY 18.0f
-#define KI_JOINT_1_VELOCITY 0.1f
-#define KD_JOINT_1_VELOCITY 0.2f
+#define KP_JOINT_1_VELOCITY 50.0f
+#define KI_JOINT_1_VELOCITY 0.0f
+#define KD_JOINT_1_VELOCITY 10.0f
 #define MAX_IOUT_JOINT_1_VELOCITY 0.0f
 #define MAX_OUT_JOINT_1_VELOCITY 1500.0f
 

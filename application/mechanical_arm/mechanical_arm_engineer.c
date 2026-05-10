@@ -164,28 +164,28 @@ void MechanicalArmInit(void)
     memset(&MECHANICAL_ARM.ref, 0, sizeof(MECHANICAL_ARM.ref));
     // #ref init ---------------------
     MECHANICAL_ARM.ref.joint[J0].angle = 0.0f;
-    MECHANICAL_ARM.ref.joint[J1].angle = MECHANICAL_ARM.limit.max.pos[J1];
-    MECHANICAL_ARM.ref.joint[J2].angle = MECHANICAL_ARM.limit.min.pos[J2];
-    MECHANICAL_ARM.ref.joint[J3].angle = MECHANICAL_ARM.limit.min.pos[J3];
-    MECHANICAL_ARM.ref.joint[J4].angle = MECHANICAL_ARM.limit.min.pos[J4];
+    MECHANICAL_ARM.ref.joint[J1].angle = 0.0f;
+    MECHANICAL_ARM.ref.joint[J2].angle = 0.0f;
+    MECHANICAL_ARM.ref.joint[J3].angle = 0.0f;
+    MECHANICAL_ARM.ref.joint[J4].angle = 0.0f;
 
     // #Initial value setting ---------------------
     MECHANICAL_ARM.mode = MECHANICAL_ARM_SAFE;
     MECHANICAL_ARM.error_code = 0;
 
     MECHANICAL_ARM.cmd.pump_on = false;
-
+// 机械臂的电气零点到机械零点的补偿，单位为弧度
     MECHANICAL_ARM.transform.dpos[J0] = J0_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J1] = J1_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J2] = J2_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J3] = J3_ANGLE_TRANSFORM;
     MECHANICAL_ARM.transform.dpos[J4] = J4_ANGLE_TRANSFORM;
-
-    MECHANICAL_ARM.transform.duration[J0] = 2;
+// 根据关节的运动需求，合理限制角度范围，避免不必要的多圈计数
+    MECHANICAL_ARM.transform.duration[J0] = 20;
     MECHANICAL_ARM.transform.duration[J1] = 4;
     MECHANICAL_ARM.transform.duration[J2] = 4;
     MECHANICAL_ARM.transform.duration[J3] = 4;
-    MECHANICAL_ARM.transform.duration[J4] = 4;
+    MECHANICAL_ARM.transform.duration[J4] = 2;
 
     // #Servo init ---------------------
     MA.servo.angle[0] = 75.0f;
@@ -289,7 +289,7 @@ static void JointStateObserve(void)
     vel = MA.joint_motor[J0].fdb.vel / MA.joint_motor[J0].reduction_ratio *
           MA.joint_motor[J0].direction;
     MA.fdb.joint[J0].velocity = LowPassFilterCalc(&MA.lpf.j[J0], vel);
-    
+    // 获取返回力矩
     MA.fdb.joint[J0].torque = MA.joint_motor[J0].fdb.tor * MA.joint_motor[J0].reduction_ratio *
                               MA.joint_motor[J0].direction;
 
@@ -353,7 +353,7 @@ static void JointStateObserve(void)
 /*----------------------------------------------------------------*/
 /* main function:       MechanicalArmReference                    */
 /******************************************************************/
-
+float angle_observe;
 void MechanicalArmReference(void)
 {
     uint8_t i;
@@ -376,6 +376,8 @@ void MechanicalArmReference(void)
             MA.ref.joint[J0].angle += GetDt7RcCh(DT7_CH_LH) * 0.002f;
             MA.ref.joint[J0].angle = fp32_constrain(
                 MA.ref.joint[J0].angle, MA.limit.min.pos[J0], MA.limit.max.pos[J0]);
+
+            angle_observe = MA.fdb.joint[J0].angle;
 
             // j1 左竖直摇杆
             MA.ref.joint[J1].angle += GetDt7RcCh(DT7_CH_RV) * 0.002f;
@@ -570,18 +572,16 @@ void ArmSendCmdSafe(void)
 void ArmSendCmdDebug(void)
 {
     CanCmdDjiMotor(
-        ARM_DJI_CAN, 0x1FF,
+        ARM_DM_CAN, 0x200,
         MA.joint_motor[J0].set.value,
         MA.joint_motor[J1].set.value,
         MA.joint_motor[J2].set.value,
-        0);
+        MA.joint_motor[J3].set.value);
 
     CanCmdDjiMotor(
         ARM_DM_CAN, 0x200,
-        MA.joint_motor[J3].set.value,
         MA.joint_motor[J4].set.value,
-        0,
-        0);
+        0, 0, 0);
 
     PwmCmdServo(0, MA.servo.angle[0]);
 }
